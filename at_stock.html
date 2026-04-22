@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="th">
-<head><!DOCTYPE html>
-<html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,769 +8,218 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #0b1120;
-    --surface: #111827;
-    --surface2: #1a2436;
-    --border: #1e2d45;
-    --border2: #253654;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --blue: #3b82f6;
-    --cyan: #06b6d4;
-    --green: #10b981;
-    --yellow: #f59e0b;
-    --red: #ef4444;
-    --purple: #8b5cf6;
+    --bg: #0b1120; --surface: #111827; --surface2: #1a2436;
+    --border: #1e2d45; --border2: #253654; --text: #e2e8f0;
+    --muted: #64748b; --blue: #3b82f6; --cyan: #06b6d4;
+    --green: #10b981; --yellow: #f59e0b; --red: #ef4444;
   }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: var(--surface); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-  input, select, button { font-family: 'Sarabun', sans-serif; }
- 
+  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+  
   /* HEADER */
-  #header {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(11,17,32,0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 28px;
-  }
-  .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 62px; gap: 16px; }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
-  .logo-title { font-weight: 800; font-size: 17px; color: #f1f5f9; letter-spacing: .3px; }
-  .logo-sub { font-size: 11px; color: var(--muted); }
-  .tabs { display: flex; gap: 4px; }
-  .tab-btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .2s; background: transparent; color: var(--muted); white-space: nowrap; }
-  .tab-btn.active { background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #fff; }
-  .tab-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
-  .btn-new { background: linear-gradient(135deg, var(--blue), var(--cyan)); border: none; border-radius: 10px; padding: 10px 18px; color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: opacity .2s; }
-  .btn-new:hover { opacity: .85; }
- 
-  /* MAIN */
-  .main { max-width: 1440px; margin: 0 auto; padding: 24px 28px; }
- 
-  /* STATS */
-  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
-  .stat-card { background: var(--surface); border-radius: 14px; padding: 20px 22px; border: 1px solid var(--border); position: relative; overflow: hidden; transition: border-color .2s; }
-  .stat-card:hover { border-color: var(--border2); }
-  .stat-icon { position: absolute; right: 16px; top: 14px; font-size: 30px; opacity: .2; }
-  .stat-val { font-size: 36px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; }
-  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
- 
-  /* FILTERS */
-  .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-  .search-box { flex: 1; min-width: 220px; background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 16px; color: var(--text); font-size: 14px; outline: none; transition: border-color .2s; }
-  .search-box:focus { border-color: var(--blue); }
-  .filter-select { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; cursor: pointer; }
-  .filter-select:focus { border-color: var(--blue); }
-  .count-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
- 
+  #header { position: sticky; top: 0; z-index: 100; background: rgba(11,17,32,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 28px; }
+  .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 62px; }
+  .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; }
+  .tabs { display: flex; gap: 5px; }
+  .tab-btn { padding: 8px 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; font-weight: 600; font-size: 13px; }
+  .tab-btn.active { background: var(--blue); color: #fff; }
+
+  /* MAIN CONTENT */
+  .main { max-width: 1440px; margin: 0 auto; padding: 20px 28px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+  .stat-card { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
+  .stat-val { font-size: 24px; font-weight: 800; font-family: 'IBM Plex Mono'; color: var(--cyan); }
+
   /* TABLE */
-  .table-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
-  .table-scroll { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: var(--bg); }
-  th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; white-space: nowrap; }
-  tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
-  tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
-  tbody tr:hover { background: rgba(255,255,255,.05); }
-  td { padding: 11px 16px; font-size: 13px; vertical-align: middle; }
+  .table-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  th { padding: 12px 16px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; background: rgba(0,0,0,0.2); }
+  td { padding: 12px 16px; font-size: 13px; border-top: 1px solid var(--border); }
   .mono { font-family: 'IBM Plex Mono', monospace; }
-  .empty-row { padding: 60px; text-align: center; color: var(--muted); font-size: 14px; }
- 
-  /* BADGES */
-  .badge { display: inline-block; padding: 3px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .badge-cat-E { background: #eff6ff18; color: #60a5fa; border: 1px solid #3b82f644; }
-  .badge-cat-P { background: #f0fdf418; color: #34d399; border: 1px solid #10b98144; }
-  .badge-cat-M { background: #fffbeb18; color: #fbbf24; border: 1px solid #f59e0b44; }
-  .badge-cat-C { background: #f5f3ff18; color: #a78bfa; border: 1px solid #8b5cf644; }
-  .badge-in  { background: #10b98118; color: #10b981; border: 1px solid #10b98140; }
-  .badge-out { background: #ef444418; color: #f87171; border: 1px solid #ef444440; }
-  .badge-ok  { background: #10b98114; color: #10b981; }
-  .badge-low { background: #f59e0b14; color: #f59e0b; }
- 
-  /* STOCK BAR */
-  .stock-cell { display: flex; align-items: center; gap: 10px; }
-  .bar-wrap { width: 56px; height: 5px; background: var(--border2); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
-  .bar-fill { height: 100%; border-radius: 3px; }
- 
-  /* ACTION BUTTONS */
-  .act-btns { display: flex; gap: 6px; }
-  .btn-in  { background: #10b98118; border: 1px solid #10b98144; color: #10b981; padding: 5px 10px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: 700; transition: all .15s; }
-  .btn-out { background: #ef444418; border: 1px solid #ef444444; color: #f87171; padding: 5px 10px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: 700; transition: all .15s; }
-  .btn-in:hover  { background: #10b98130; }
-  .btn-out:hover { background: #ef444430; }
- 
+  
+  /* UTILS */
+  .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+  .badge-low { background: #f59e0b20; color: var(--yellow); border: 1px solid #f59e0b40; }
+  .badge-ok { background: #10b98120; color: var(--green); border: 1px solid #10b98140; }
+  .search-box { width: 100%; padding: 10px; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: #fff; margin-bottom: 15px; }
+  
   /* MODAL */
-  #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
-  #modal-overlay.open { display: flex; }
-  .modal { background: var(--surface2); border: 1px solid var(--border2); border-radius: 18px; padding: 32px; width: 440px; max-width: 94vw; box-shadow: 0 24px 80px rgba(0,0,0,.6); animation: slideUp .25s ease; }
-  @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-  .modal-title { font-weight: 800; font-size: 18px; color: #f1f5f9; margin-bottom: 24px; }
-  .form-label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
-  .form-group { margin-bottom: 18px; }
-  .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; transition: border-color .2s; }
-  .form-input:focus { border-color: var(--blue); }
-  .form-input.mono { font-family: 'IBM Plex Mono', monospace; }
-  .type-btns { display: flex; gap: 8px; }
-  .type-btn { flex: 1; padding: 11px; border-radius: 10px; border: 2px solid var(--border2); background: transparent; color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; }
-  .type-btn.active-in  { border-color: var(--green); background: #10b98120; color: var(--green); }
-  .type-btn.active-out { border-color: var(--red); background: #ef444420; color: #f87171; }
-  .item-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
-  .item-hint b { font-weight: 700; }
-  .modal-footer { display: flex; gap: 10px; margin-top: 8px; }
-  .btn-cancel { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border2); background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
-  .btn-cancel:hover { background: var(--surface); color: var(--text); }
-  .btn-submit { flex: 2; padding: 12px; border-radius: 10px; border: none; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
-  .btn-submit.in  { background: linear-gradient(135deg, #10b981, #059669); }
-  .btn-submit.out { background: linear-gradient(135deg, #ef4444, #dc2626); }
-  .btn-submit:hover { opacity: .88; }
- 
-  /* NOTIF */
-  #notif { position: fixed; top: 20px; right: 20px; z-index: 999; padding: 12px 22px; border-radius: 10px; color: #fff; font-weight: 700; font-size: 14px; box-shadow: 0 8px 32px rgba(0,0,0,.4); display: none; animation: fadeIn .3s ease; pointer-events: none; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
- 
-  /* TABS content */
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
- 
-  /* ORDER HEADER */
-  .order-header { color: var(--yellow); font-weight: 700; font-size: 15px; margin-bottom: 16px; }
- 
-  @media (max-width: 768px) {
-    .stats-grid { grid-template-columns: repeat(2,1fr); }
-    .tabs { display: none; }
-    .mobile-tabs { display: flex; gap: 4px; overflow-x: auto; margin-bottom: 16px; }
-    .header-inner { flex-wrap: wrap; height: auto; padding: 12px 0; }
-  }
-  @media (min-width: 769px) { .mobile-tabs { display: none; } }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); display: none; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(4px); }
+  .modal { background: var(--surface2); padding: 25px; border-radius: 18px; width: 400px; border: 1px solid var(--border2); }
+  .btn-submit { background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 10px; }
+  .btn-reset { background: #ef444415; color: var(--red); border: 1px solid #ef444440; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
 </style>
 </head>
 <body>
- 
-<!-- NOTIFICATION -->
-<div id="notif"></div>
- 
-<!-- HEADER -->
+
 <div id="header">
   <div class="header-inner">
-    <div class="logo">
+    <div style="display:flex; align-items:center; gap:10px;">
       <div class="logo-icon">📦</div>
-      <div>
-        <div class="logo-title">AT Stock</div>
-        <div class="logo-sub">ระบบจัดการสต็อกอะไหล่</div>
-      </div>
+      <span style="font-weight:800;">AT STOCK</span>
     </div>
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('stock')">📋 สต็อก</button>
-      <button class="tab-btn" onclick="switchTab('transactions')">🔄 รายการเคลื่อนไหว</button>
-      <button class="tab-btn" onclick="switchTab('orders')">⚠️ รายการสั่งซื้อ</button>
+      <button class="tab-btn active" id="b-stock" onclick="switchTab('stock')">คลังอะไหล่</button>
+      <button class="tab-btn" id="b-tx" onclick="switchTab('tx')">ประวัติเบิก/รับ</button>
     </div>
-    <button class="btn-new" onclick="openModal()">+ บันทึกรายการ</button>
+    <button class="btn-reset" onclick="resetSystem()">ล้างข้อมูลระบบ</button>
   </div>
 </div>
- 
+
 <div class="main">
-  <!-- Mobile tabs -->
-  <div class="mobile-tabs">
-    <button class="tab-btn active" onclick="switchTab('stock')">📋 สต็อก</button>
-    <button class="tab-btn" onclick="switchTab('transactions')">🔄 เคลื่อนไหว</button>
-    <button class="tab-btn" onclick="switchTab('orders')">⚠️ สั่งซื้อ</button>
-  </div>
- 
-  <!-- STATS -->
-  <div class="stats-grid" id="stats-grid"></div>
- 
-  <!-- STOCK TAB -->
-  <div id="tab-stock" class="tab-content active">
-    <div class="filters">
-      <input class="search-box" id="search" placeholder="🔍 ค้นหารหัส / ชื่ออะไหล่..." oninput="renderStock()">
-      <select class="filter-select" id="cat-filter" onchange="renderStock()">
-        <option value="all">ทุกหมวดหมู่</option>
-        <option value="Electrical">ไฟฟ้า</option>
-        <option value="Pneumatic">นิวแมติก</option>
-        <option value="Mechanical">เครื่องกล</option>
-        <option value="Consumables">วัสดุสิ้นเปลือง</option>
-      </select>
-      <select class="filter-select" id="status-filter" onchange="renderStock()">
-        <option value="all">ทุกสถานะ</option>
-        <option value="ok">ปกติ</option>
-        <option value="low">ต้องสั่งเพิ่ม</option>
-      </select>
-      <span class="count-label" id="count-label"></span>
-    </div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table id="stock-table">
-          <thead><tr>
-            <th>รหัสอะไหล่</th><th>รายการ</th><th>หมวดหมู่</th>
-            <th>จุดสั่งซื้อ</th><th>คงเหลือ</th><th>หน่วย</th>
-            <th>สถานะ</th><th>ดำเนินการ</th>
-          </tr></thead>
-          <tbody id="stock-body"></tbody>
-        </table>
+  <div id="tab-stock">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div style="font-size:12px; color:var(--muted)">รายการทั้งหมด</div>
+        <div class="stat-val" id="stat-total">0</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:12px; color:var(--muted)">สินค้าต้องสั่งเพิ่ม</div>
+        <div class="stat-val" id="stat-low" style="color:var(--yellow)">0</div>
       </div>
     </div>
-  </div>
- 
-  <!-- TRANSACTIONS TAB -->
-  <div id="tab-transactions" class="tab-content">
-    <div class="filters">
-      <input class="search-box" id="tx-search" placeholder="🔍 ค้นหารหัสอะไหล่ / อ้างอิง..." oninput="renderTx()">
-    </div>
+
+    <input type="text" id="search" class="search-box" placeholder="🔍 ค้นหาด้วยรหัส หรือ ชื่ออะไหล่..." oninput="render()">
+    
     <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead><tr>
-            <th>วันที่</th><th>ประเภท</th><th>รหัสอะไหล่</th>
-            <th>รายการ</th><th>จำนวน</th><th>อ้างอิง</th>
-          </tr></thead>
-          <tbody id="tx-body"></tbody>
-        </table>
-      </div>
+      <table>
+        <thead>
+          <tr><th>รหัสอะไหล่</th><th>ชื่อรายการ</th><th>คงเหลือ</th><th>Min</th><th>สถานะ</th><th>จัดการ</th></tr>
+        </thead>
+        <tbody id="stock-body"></tbody>
+      </table>
     </div>
   </div>
- 
-  <!-- ORDERS TAB -->
-  <div id="tab-orders" class="tab-content">
-    <div class="order-header" id="order-header"></div>
+
+  <div id="tab-tx" style="display:none;">
+    <h3>🔄 ประวัติรายการเคลื่อนไหว</h3><br>
     <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead><tr>
-            <th>รหัสอะไหล่</th><th>รายการ</th><th>หมวดหมู่</th>
-            <th>จุดสั่งซื้อ</th><th>คงเหลือ</th><th>ต้องสั่งเพิ่ม</th><th>หน่วย</th>
-          </tr></thead>
-          <tbody id="orders-body"></tbody>
-        </table>
-      </div>
+      <table>
+        <thead>
+          <tr><th>วันที่/เวลา</th><th>ประเภท</th><th>รหัส</th><th>จำนวน</th><th>อ้างอิง</th></tr>
+        </thead>
+        <tbody id="tx-body"></tbody>
+      </table>
     </div>
   </div>
 </div>
- 
-<!-- MODAL -->
-<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+
+<div id="tx-modal" class="modal-overlay">
   <div class="modal">
-    <div class="modal-title">📝 บันทึกรายการเคลื่อนไหว</div>
-    <div class="form-group">
-      <label class="form-label">ประเภทการดำเนินการ</label>
-      <div class="type-btns">
-        <button class="type-btn active-in" id="btn-type-in" onclick="setType('IN')">▼ รับเข้า</button>
-        <button class="type-btn" id="btn-type-out" onclick="setType('OUT')">▲ เบิกออก</button>
-      </div>
+    <h3 id="tx-title">ทำรายการ</h3><br>
+    <input type="hidden" id="tx-id">
+    <div style="margin-bottom:15px;">
+      <label style="font-size:12px; color:var(--muted)">จำนวน</label>
+      <input type="number" id="tx-qty" class="search-box" value="1" style="margin:5px 0 0;">
     </div>
-    <div class="form-group">
-      <label class="form-label">รหัสอะไหล่ *</label>
-      <input class="form-input mono" id="modal-itemid" placeholder="เช่น BNL6, YW1P-1UQ4G" oninput="updateHint()" list="item-datalist">
-      <datalist id="item-datalist"></datalist>
-      <div class="item-hint" id="item-hint"></div>
+    <div style="margin-bottom:15px;">
+      <label style="font-size:12px; color:var(--muted)">อ้างอิง (โปรเจกต์/ผู้เบิก)</label>
+      <input type="text" id="tx-ref" class="search-box" placeholder="-" style="margin:5px 0 0;">
     </div>
-    <div class="form-group">
-      <label class="form-label">จำนวน *</label>
-      <input class="form-input mono" id="modal-qty" type="number" min="1" placeholder="0">
-    </div>
-    <div class="form-group">
-      <label class="form-label">อ้างอิง / โปรเจกต์ (ถ้ามี)</label>
-      <input class="form-input" id="modal-ref" placeholder="ชื่อโปรเจกต์หรือผู้เบิก">
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn-submit in" id="btn-submit" onclick="submitTx()">ยืนยันรับเข้า</button>
-    </div>
+    <button class="btn-submit" onclick="confirmTx()">บันทึกรายการ</button>
+    <button onclick="closeModal()" style="background:none; border:none; color:var(--muted); width:100%; margin-top:10px; cursor:pointer;">ยกเลิก</button>
   </div>
 </div>
- 
+
 <script>
-const CAT_TH = { Electrical:'ไฟฟ้า', Pneumatic:'นิวแมติก', Mechanical:'เครื่องกล', Consumables:'วัสดุสิ้นเปลือง' };
-const CAT_CLASS = { Electrical:'badge-cat-E', Pneumatic:'badge-cat-P', Mechanical:'badge-cat-M', Consumables:'badge-cat-C' };
- 
-let items = [{"id":"BNL6","description":"สต๊อปเปอร์เทอร์มินอล IDEC BNL6","category":"Electrical","minStock":10,"currentStock":20,"unit":"ตัว"},{"id":"DB-C8-J10-F11R","description":"ปลั๊ก DB-C8-J10-F11R","category":"Electrical","minStock":2,"currentStock":3,"unit":"ตัว"},{"id":"พัดลม5V","description":"พัดลม DC-Brushless 5V-DC","category":"Electrical","minStock":2,"currentStock":4,"unit":"ตัว"},{"id":"พัดลม220V80x80x25","description":"พัดลมระบายอากาศ 220/240VAC 80x80x25mm.","category":"Electrical","minStock":2,"currentStock":4,"unit":"ตัว"},{"id":"1.5-3S","description":"หางปลาเปลือย 1.5-3S","category":"Electrical","minStock":200,"currentStock":500,"unit":"ตัว"},{"id":"2.5-4S","description":"หางปลาเปลือย 2.5-4S","category":"Electrical","minStock":200,"currentStock":200,"unit":"ตัว"},{"id":"YW1P-1UQM3G","description":"IDEC PILOTLIGHT YW1P-1UQM3G 220VAC","category":"Electrical","minStock":5,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4G","description":"IDEC PILOTLIGHT YW1P-1UQ4G 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4PW","description":"IDEC PILOTLIGHT YW1P-1UQ4PW 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4R","description":"IDEC PILOTLIGHT YW1P-1UQ4R 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1B-A1E10G","description":"IDEC PUSHBUTTON SWITCH YW1B-A1E10G","category":"Electrical","minStock":10,"currentStock":10,"unit":"ตัว"},{"id":"YW1B-M1E01R","description":"IDEC PUSHBUTTON SWITCH YW1B-M1E01R","category":"Electrical","minStock":10,"currentStock":3,"unit":"ตัว"},{"id":"YW1L-M2E11Q4Y","description":"IDEC PUSHBUTTON SWITCH YW1L-M2E11Q4Y","category":"Electrical","minStock":10,"currentStock":1,"unit":"ตัว"},{"id":"YW1S-2E10","description":"IDEC SELECTOR SWITCH YW1S-2E10","category":"Electrical","minStock":10,"currentStock":2,"unit":"ตัว"},{"id":"YW1S-2E20","description":"IDEC SELECTOR SWITCH YW1S-2E20","category":"Electrical","minStock":10,"currentStock":2,"unit":"ตัว"},{"id":"H05VK 1x0.75","description":"สายคอนโทรล H05VK 1x0.75 SQ.MM.(YELLOW)","category":"Electrical","minStock":100,"currentStock":50,"unit":"เมตร"},{"id":"H05VK 1x0.50","description":"สายคอนโทรล H05VK 1x0.50 SQ.MM.(BLUE)","category":"Electrical","minStock":100,"currentStock":250,"unit":"เมตร"},{"id":"FX3G-40M","description":"PLC FX3G-40M","category":"Electrical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"FX3G-60M","description":"PLC FX3G-60M","category":"Electrical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"S8FS-C03524","description":"Power Supply S8FS-C03524","category":"Electrical","minStock":2,"currentStock":2,"unit":"ตัว"},{"id":"S8FS-C05024","description":"Power Supply S8FS-C05024","category":"Electrical","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"PYFZ-08-E","description":"Socket Relay PYFZ-08-E","category":"Electrical","minStock":10,"currentStock":0,"unit":"ตัว"},{"id":"MY2N","description":"Relay MY2N 24VDC","category":"Electrical","minStock":10,"currentStock":10,"unit":"ตัว"},{"id":"H3Y-2","description":"Relay Timer H3Y-2 24VDC","category":"Electrical","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"ER17/50","description":"Batt. maxell ER17/50 3.6v","category":"Electrical","minStock":10,"currentStock":10,"unit":"ก้อน"},{"id":"CR14250SE","description":"Batt. FDK CR14250SE 3V","category":"Electrical","minStock":10,"currentStock":0,"unit":"ก้อน"},{"id":"D-P3DWA","description":"Reed Switch SMC D-P3DWA","category":"Electrical","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"DPSP1","description":"Sensor AirTAC DPSP1-10020","category":"Electrical","minStock":5,"currentStock":0,"unit":"ตัว"},{"id":"QPU4","description":"ข้อต่อตรง QPU 4","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"QPU6","description":"ข้อต่อตรง QPU 6","category":"Pneumatic","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"QPU8","description":"ข้อต่อตรง QPU 8","category":"Pneumatic","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"QPU6-4","description":"ข้อต่อตรง QPU 6-4","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QPU8-6","description":"ข้อต่อตรง QPU 8-6","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPE6","description":"ข้อต่อสามทาง QPE 6","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPE8","description":"ข้อต่อสามทาง QPE 8","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPE6-4","description":"ข้อต่อสามทาง QPE 6-4","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPE8-6","description":"ข้อต่อสามทาง QPE 8-6","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QPE10-8","description":"ข้อต่อสามทาง QPE 10-8","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QJSC4-M5","description":"ข้อต่อปรับลม QJSC 4-M5","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QJSC6-M5","description":"ข้อต่อปรับลม QJSC 6-M5","category":"Pneumatic","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"QJSC8-1/8","description":"ข้อต่อปรับลม QJSC 8-1/8","category":"Pneumatic","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"QJSC8-1/4","description":"ข้อต่อปรับลม QJSC 8-1/4","category":"Pneumatic","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"QPL6-1/8","description":"ข้อต่อ 90 QPL 6-1/8","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPL6-1/4","description":"ข้อต่อ 90 QPL 6-1/4","category":"Pneumatic","minStock":20,"currentStock":23,"unit":"ตัว"},{"id":"QPL6-3/8","description":"ข้อต่อ 90 QPL 6-3/8","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPL6-1/2","description":"ข้อต่อ 90 QPL 6-1/2","category":"Pneumatic","minStock":20,"currentStock":1,"unit":"ตัว"},{"id":"QPL6-M5","description":"ข้อต่อ 90 QPL 6-M5","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QPL8-1/8","description":"ข้อต่อ 90 QPL 8-1/8","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPL8-1/4","description":"ข้อต่อ 90 QPL 8-1/4","category":"Pneumatic","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"QPL8-3/8","description":"ข้อต่อ 90 QPL 8-3/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPL8-1/2","description":"ข้อต่อ 90 QPL 8-1/2","category":"Pneumatic","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"QPC4-M5","description":"ข้อต่อลม QPC 4-M5","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPC6-1/8","description":"ข้อต่อลม QPC 6-1/8","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QPC6-1/4","description":"ข้อต่อลม QPC 6-1/4","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPC6-3/8","description":"ข้อต่อลม QPC 6-3/8","category":"Pneumatic","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"QPC6-1/2","description":"ข้อต่อลม QPC 6-1/2","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPC6-M5","description":"ข้อต่อลม QPC 6-M5","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPC8-1/8","description":"ข้อต่อลม QPC 8-1/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPC8-1/4","description":"ข้อต่อลม QPC 8-1/4","category":"Pneumatic","minStock":20,"currentStock":13,"unit":"ตัว"},{"id":"QPC8-3/8","description":"ข้อต่อลม QPC 8-3/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPC8-1/2","description":"ข้อต่อลม QPC 8-1/2","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPY4","description":"ข้อต่อลม QPY 4","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"QPY6","description":"ข้อต่อลม QPY 6","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPY8","description":"ข้อต่อลม QPY 8","category":"Pneumatic","minStock":20,"currentStock":22,"unit":"ตัว"},{"id":"QPY10","description":"ข้อต่อลม QPY 10","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"PSA6","description":"ข้อต่อลมแบบปรับได้ PSA 6","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"PSA8","description":"ข้อต่อลมแบบปรับได้ PSA 8","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"2V13010B","description":"Solenoid Valve 2V13010B","category":"Pneumatic","minStock":5,"currentStock":1,"unit":"ตัว"},{"id":"4V230C-08","description":"Solenoid Valve 4V230C-08","category":"Pneumatic","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"SY5220-5LZ-C4","description":"Solenoid Valve SY5220-5LZ-C4","category":"Pneumatic","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"SY5220-5LZ-C6","description":"Solenoid Valve SY5220-5LZ-C6","category":"Pneumatic","minStock":5,"currentStock":1,"unit":"ตัว"},{"id":"MHL2-10D1","description":"AIR GRIPPER MHL2-10D1 (SMC)","category":"Pneumatic","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"HFCI40","description":"AIR GRIPPER HFCI40 (AIRTEC)","category":"Pneumatic","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"MHS4-40D","description":"AIR GRIPPER MHS4-40D (SMC)","category":"Pneumatic","minStock":2,"currentStock":2,"unit":"ตัว"},{"id":"MHZL2-25D","description":"AIR GRIPPER MHZL2-25D (SMC)","category":"Pneumatic","minStock":2,"currentStock":3,"unit":"ตัว"},{"id":"สายลม6","description":"สายลม PU 6mm.","category":"Pneumatic","minStock":100,"currentStock":100,"unit":"เมตร"},{"id":"สายลม8","description":"สายลม PU 8mm.","category":"Pneumatic","minStock":100,"currentStock":100,"unit":"เมตร"},{"id":"หัวเตเปอร์M3x25","description":"สกรูหัวเตเปอร์ M3x25 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวเตเปอร์M5x10","description":"สกรูหัวเตเปอร์ M5x10 mm.","category":"Mechanical","minStock":20,"currentStock":12,"unit":"ตัว"},{"id":"หัวเตเปอร์M6x10","description":"สกรูหัวเตเปอร์ M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM3x10","description":"สกรูหัวจม M3x10 mm.","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"หัวจมM3x15","description":"สกรูหัวจม M3x15 mm.","category":"Mechanical","minStock":20,"currentStock":1,"unit":"ตัว"},{"id":"หัวจมM3x40","description":"สกรูหัวจม M3x40 mm.","category":"Mechanical","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"หัวจมM4x10","description":"สกรูหัวจม M4x10 mm.","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"หัวจมM4x15","description":"สกรูหัวจม M4x15 mm.","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"หัวจมM4x80","description":"สกรูหัวจม M4x80 mm.","category":"Mechanical","minStock":20,"currentStock":13,"unit":"ตัว"},{"id":"หัวจมM5x20","description":"สกรูหัวจม M5x20 mm.","category":"Mechanical","minStock":20,"currentStock":2,"unit":"ตัว"},{"id":"หัวจมM5x50","description":"สกรูหัวจม M5x50 mm.","category":"Mechanical","minStock":20,"currentStock":11,"unit":"ตัว"},{"id":"หัวจมM5x70","description":"สกรูหัวจม M5x70 mm.","category":"Mechanical","minStock":20,"currentStock":35,"unit":"ตัว"},{"id":"หัวจมM5x80","description":"สกรูหัวจม M5x80 mm.","category":"Mechanical","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"หัวจมM6x5","description":"สกรูหัวจม M6x5 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมM6x10","description":"สกรูหัวจม M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"หัวจมM6x15","description":"สกรูหัวจม M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"หัวจมM6x25","description":"สกรูหัวจม M6x25 mm.","category":"Mechanical","minStock":20,"currentStock":2,"unit":"ตัว"},{"id":"หัวจมM6x40","description":"สกรูหัวจม M6x40 mm.","category":"Mechanical","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"หัวจมM6x45","description":"สกรูหัวจม M6x45 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x15","description":"สกรูหัวจม M8x15 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x20","description":"สกรูหัวจม M8x20 mm.","category":"Mechanical","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"หัวจมM8x25","description":"สกรูหัวจม M8x25 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x30","description":"สกรูหัวจม M8x30 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมM8x40","description":"สกรูหัวจม M8x40 mm.","category":"Mechanical","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"หัวจมชุปM5x8","description":"สกรูหัวจมชุปซิง M5x8 mm.","category":"Mechanical","minStock":20,"currentStock":80,"unit":"ตัว"},{"id":"หัวจมชุปM5x12","description":"สกรูหัวจมชุปซิง M5x12 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมชุปM6x12","description":"สกรูหัวจมชุปซิง M6x12 mm.","category":"Mechanical","minStock":20,"currentStock":60,"unit":"ตัว"},{"id":"หัวจมชุปM6x15","description":"สกรูหัวจมชุปซิง M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM4x30","description":"สกรูหัวจมสแตนเลส M4x30 mm.","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x10","description":"สกรูหัวจมสแตนเลส M5x10 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x15","description":"สกรูหัวจมสแตนเลส M5x15 mm.","category":"Mechanical","minStock":20,"currentStock":16,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x25","description":"สกรูหัวจมสแตนเลส M5x25 mm.","category":"Mechanical","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM6x10","description":"สกรูหัวจมสแตนเลส M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM6x15","description":"สกรูหัวจมสแตนเลส M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"น็อตM3","description":"น็อต M3","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"น็อตM4","description":"น็อต M4","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"น็อตM5","description":"น็อต M5","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"น็อตM6","description":"น็อต M6","category":"Mechanical","minStock":20,"currentStock":16,"unit":"ตัว"},{"id":"น็อตM8","description":"น็อต M8","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"น็อตM10","description":"น็อต M10","category":"Mechanical","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"แหวนสปิงM3","description":"แหวนสปิง M3","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงM4","description":"แหวนสปิง M4","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงM5","description":"แหวนสปิง M5","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงM6","description":"แหวนสปิง M6","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM3","description":"แหวนสปิง M3 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM4","description":"แหวนสปิง M4 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM5","description":"แหวนสปิง M5 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM6","description":"แหวนสปิง M6 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":12,"unit":"ตัว"},{"id":"แหวนอิแปะM3","description":"แหวนอิแปะ M3","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะM4","description":"แหวนอิแปะ M4","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะM5","description":"แหวนอิแปะ M5","category":"Mechanical","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"แหวนอิแปะM6","description":"แหวนอิแปะ M6","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM3","description":"แหวนอิแปะ M3 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM4","description":"แหวนอิแปะ M4 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM5","description":"แหวนอิแปะ M5 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM6","description":"แหวนอิแปะ M6 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"AB060A050S2P2","description":"GearServo APEX AB060A-050-S2-P2","category":"Mechanical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"เคเบิ้นไทร์4","description":"เคเบิ้นไทร์ 4\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"เคเบิ้นไทร์6","description":"เคเบิ้นไทร์ 6\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"เคเบิ้นไทร์8","description":"เคเบิ้นไทร์ 8\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"เคเบิ้นไทร์10","description":"เคเบิ้นไทร์ 10\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"PG7","description":"เคเบิ้นแกลน PG 7","category":"Consumables","minStock":0,"currentStock":20,"unit":"ตัว"},{"id":"PG9","description":"เคเบิ้นแกลน PG 9","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG11","description":"เคเบิ้นแกลน PG 11","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG13.5","description":"เคเบิ้นแกลน PG 13.5","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG16","description":"เคเบิ้นแกลน PG 16","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG19","description":"เคเบิ้นแกลน PG 19","category":"Consumables","minStock":0,"currentStock":20,"unit":"ตัว"},{"id":"PG21","description":"เคเบิ้นแกลน PG 21","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG25","description":"เคเบิ้นแกลน PG 25","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"}];
- 
-let transactions = [{"date":"2026-04-07","type":"IN","itemId":"YW1B-A1E10G","qty":10,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1P-1UQ4G","qty":5,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1P-1UQ4PW","qty":5,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1P-1UQ4R","qty":5,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"BNL6","qty":20,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"D-P3DWA","qty":2,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"DB-C8-J10-F11R","qty":3,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"พัดลม5V","qty":4,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"พัดลม220V80x80x25","qty":4,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"1.5-3S","qty":500,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"2.5-4S","qty":200,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1B-M1E01R","qty":3,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1L-M2E11Q4Y","qty":1,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1S-2E10","qty":2,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1S-2E20","qty":2,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"H05VK 1x0.75","qty":50,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"H05VK 1x0.50","qty":250,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"QPU6","qty":30,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"QPU8","qty":30,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"QPU6-4","qty":15,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"QPU8-6","qty":6,"ref":""},{"date":"2026-04-10","type":"IN","itemId":"สายลม6","qty":100,"ref":""},{"date":"2026-04-10","type":"IN","itemId":"สายลม8","qty":100,"ref":""},{"date":"2026-04-10","type":"IN","itemId":"QPL6-1/4","qty":20,"ref":""},{"date":"2026-04-11","type":"IN","itemId":"PG7","qty":20,"ref":""},{"date":"2026-04-11","type":"IN","itemId":"PG19","qty":20,"ref":""},{"date":"2026-04-11","type":"IN","itemId":"MHZL2-25D","qty":2,"ref":""}];
- 
-let currentType = 'IN';
-let currentTab = 'stock';
- 
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
- 
-function getItem(id){ return items.find(i=>i.id.toLowerCase()===String(id).toLowerCase()); }
- 
-function isLow(item){ return item.minStock > 0 && item.currentStock < item.minStock; }
- 
-function stockPct(item){ return item.minStock===0?100:Math.min(100,Math.round(item.currentStock/item.minStock*100)); }
- 
-function barColor(item){
-  if(item.currentStock===0) return '#ef4444';
-  if(isLow(item)) return '#f59e0b';
-  return '#10b981';
+// ข้อมูล Master Data (ที่คัดมาให้ครบถ้วน)
+const MASTER_DATA = [
+  {"id":"BNL6","description":"สต๊อปเปอร์เทอร์มินอล IDEC BNL6","minStock":10,"currentStock":20},
+  {"id":"DB-C8-J10-F11R","description":"ปลั๊ก DB-C8-J10-F11R","minStock":2,"currentStock":3},
+  {"id":"พัดลม5V","description":"พัดลม DC-Brushless 5V-DC","minStock":2,"currentStock":4},
+  {"id":"YW1P-1UQ4G","description":"IDEC PILOTLIGHT 24VDC GREEN","minStock":10,"currentStock":5},
+  {"id":"YW1B-M1E01R","description":"PUSHBUTTON SWITCH RED","minStock":10,"currentStock":3},
+  {"id":"S8FS-C05024","description":"Power Supply 24VDC 50W","minStock":2,"currentStock":1},
+  {"id":"PYFZ-08-E","description":"Socket Relay PYFZ-08-E","minStock":10,"currentStock":0},
+  {"id":"MY2N","description":"Relay MY2N 24VDC","minStock":10,"currentStock":10},
+  {"id":"QPU6","description":"ข้อต่อตรง QPU 6","minStock":20,"currentStock":30},
+  {"id":"QJSC8-1/8","description":"ข้อต่อปรับลม 8-1/8","minStock":20,"currentStock":4},
+  {"id":"หัวจมM3x10","description":"สกรูหัวจม M3x10 mm.","minStock":20,"currentStock":0},
+  {"id":"น็อตM6","description":"น็อต M6","minStock":20,"currentStock":16},
+  {"id":"เคเบิ้นไทร์4","description":"เคเบิ้นไทร์ 4 นิ้ว (ถุง)","minStock":5,"currentStock":0},
+  {"id":"เทปพันสายไฟ","description":"เทปพันสายไฟ 3M","minStock":5,"currentStock":2}
+];
+
+let items = JSON.parse(localStorage.getItem('at_items')) || MASTER_DATA;
+let txs = JSON.parse(localStorage.getItem('at_tx')) || [];
+let currentMode = 'IN';
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const body = document.getElementById('stock-body');
+  let lowCount = 0;
+
+  body.innerHTML = items.filter(i => i.id.toLowerCase().includes(q) || i.description.toLowerCase().includes(q))
+    .map(i => {
+      const isLow = i.currentStock <= i.minStock;
+      if(isLow) lowCount++;
+      return `<tr>
+        <td class="mono"><b>${i.id}</b></td>
+        <td style="color:var(--muted)">${i.description}</td>
+        <td class="mono" style="font-weight:700; color:${isLow?'var(--yellow)':'var(--green)'}">${i.currentStock}</td>
+        <td class="mono">${i.minStock}</td>
+        <td><span class="badge ${isLow?'badge-low':'badge-ok'}">${isLow?'ORDER':'OK'}</span></td>
+        <td>
+          <button onclick="openTx('IN','${i.id}')" style="color:var(--green); background:none; border:none; cursor:pointer;">รับ</button> |
+          <button onclick="openTx('OUT','${i.id}')" style="color:var(--red); background:none; border:none; cursor:pointer;">เบิก</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+  document.getElementById('stat-total').innerText = items.length;
+  document.getElementById('stat-low').innerText = lowCount;
+  
+  document.getElementById('tx-body').innerHTML = txs.map(t => `
+    <tr><td style="font-size:11px;">${t.time}</td><td>${t.type==='IN'?'📥':'📤'}</td><td class="mono">${t.id}</td><td class="mono">${t.qty}</td><td>${t.ref}</td></tr>
+  `).join('');
+
+  localStorage.setItem('at_items', JSON.stringify(items));
+  localStorage.setItem('at_tx', JSON.stringify(txs));
 }
- 
-function renderStats(){
-  const total=items.length, low=items.filter(isLow).length, ok=items.filter(i=>!isLow(i)).length, zero=items.filter(i=>i.currentStock===0).length;
-  const data=[
-    {label:'รายการทั้งหมด',val:total,icon:'📦',color:'#3b82f6'},
-    {label:'สต็อกปกติ',val:ok,icon:'✅',color:'#10b981'},
-    {label:'ต้องสั่งเพิ่ม',val:low,icon:'⚠️',color:'#f59e0b'},
-    {label:'หมดสต็อก',val:zero,icon:'🚨',color:'#ef4444'},
-  ];
-  document.getElementById('stats-grid').innerHTML=data.map(d=>`
-    <div class="stat-card" style="border-color:${d.color}22">
-      <div class="stat-icon">${d.icon}</div>
-      <div class="stat-val" style="color:${d.color}">${d.val}</div>
-      <div class="stat-label">${d.label}</div>
-    </div>`).join('');
+
+function openTx(m, id) {
+  currentMode = m;
+  document.getElementById('tx-id').value = id;
+  document.getElementById('tx-title').innerText = m === 'IN' ? '📥 รับอะไหล่เข้าคลัง' : '📤 เบิกอะไหล่ออก';
+  document.getElementById('tx-modal').style.display = 'flex';
 }
- 
-function renderStock(){
-  const q=(document.getElementById('search').value||'').toLowerCase();
-  const cat=document.getElementById('cat-filter').value;
-  const st=document.getElementById('status-filter').value;
-  const filtered=items.filter(item=>{
-    const ms=!q||item.id.toLowerCase().includes(q)||item.description.toLowerCase().includes(q);
-    const mc=cat==='all'||item.category===cat;
-    const ms2=st==='all'||(st==='low'&&isLow(item))||(st==='ok'&&!isLow(item));
-    return ms&&mc&&ms2;
-  });
-  document.getElementById('count-label').textContent=`พบ ${filtered.length} รายการ`;
-  const body=document.getElementById('stock-body');
-  if(!filtered.length){ body.innerHTML=`<tr><td colspan="8" class="empty-row">ไม่พบรายการที่ค้นหา</td></tr>`; return; }
-  body.innerHTML=filtered.map(item=>{
-    const low=isLow(item), empty=item.currentStock===0;
-    const pct=stockPct(item), col=barColor(item);
-    const valColor=empty?'#ef4444':low?'#f59e0b':'#10b981';
-    return `<tr>
-      <td><span class="mono" style="color:#93c5fd;font-size:13px">${esc(item.id)}</span></td>
-      <td style="color:#e2e8f0;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(item.description)}</td>
-      <td><span class="badge ${CAT_CLASS[item.category]||''}">${esc(CAT_TH[item.category]||item.category)}</span></td>
-      <td class="mono" style="color:#94a3b8">${item.minStock}</td>
-      <td><div class="stock-cell">
-        <span class="mono" style="color:${valColor};font-weight:700;min-width:32px">${item.currentStock}</span>
-        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
-      </div></td>
-      <td style="color:#64748b;font-size:12px">${esc(item.unit)}</td>
-      <td><span style="font-size:12px;color:${low?'#f59e0b':'#10b981'};font-weight:600">${low?'⚠️ สั่งเพิ่ม':'✓ ปกติ'}</span></td>
-      <td><div class="act-btns">
-        <button class="btn-in" onclick="quickTx('${esc(item.id)}','IN')">รับเข้า</button>
-        <button class="btn-out" onclick="quickTx('${esc(item.id)}','OUT')">เบิกออก</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
- 
-function renderTx(){
-  const q=(document.getElementById('tx-search').value||'').toLowerCase();
-  const filtered=transactions.filter(tx=>!q||tx.itemId.toLowerCase().includes(q)||(tx.ref||'').toLowerCase().includes(q));
-  const body=document.getElementById('tx-body');
-  if(!filtered.length){ body.innerHTML=`<tr><td colspan="6" class="empty-row">ไม่พบรายการ</td></tr>`; return; }
-  body.innerHTML=filtered.map(tx=>{
-    const item=getItem(tx.itemId);
-    const isIn=tx.type==='IN';
-    return `<tr>
-      <td class="mono" style="color:#64748b;font-size:12px">${esc(tx.date)}</td>
-      <td><span class="badge ${isIn?'badge-in':'badge-out'}">${isIn?'▼ รับเข้า':'▲ เบิกออก'}</span></td>
-      <td class="mono" style="color:#93c5fd">${esc(tx.itemId)}</td>
-      <td style="color:#cbd5e1;font-size:13px">${item?esc(item.description):'-'}</td>
-      <td class="mono" style="color:${isIn?'#10b981':'#f87171'};font-weight:700">${isIn?'+':'-'}${tx.qty}${item&&item.unit?' '+item.unit:''}</td>
-      <td style="color:#94a3b8;font-size:13px">${esc(tx.ref||'-')}</td>
-    </tr>`;
-  }).join('');
-}
- 
-function renderOrders(){
-  const low=items.filter(isLow).sort((a,b)=>(a.currentStock/Math.max(a.minStock,1))-(b.currentStock/Math.max(b.minStock,1)));
-  document.getElementById('order-header').textContent=`⚠️ รายการที่ต้องสั่งซื้อเพิ่ม (${low.length} รายการ)`;
-  const body=document.getElementById('orders-body');
-  if(!low.length){ body.innerHTML=`<tr><td colspan="7" class="empty-row">✅ สต็อกปกติทุกรายการ</td></tr>`; return; }
-  body.innerHTML=low.map(item=>{
-    const needed=item.minStock-item.currentStock;
-    const empty=item.currentStock===0;
-    return `<tr>
-      <td class="mono" style="color:#93c5fd;font-size:13px">${esc(item.id)}</td>
-      <td style="color:#e2e8f0;font-size:13px">${esc(item.description)}</td>
-      <td><span class="badge ${CAT_CLASS[item.category]||''}">${esc(CAT_TH[item.category]||item.category)}</span></td>
-      <td class="mono" style="color:#94a3b8">${item.minStock}</td>
-      <td class="mono" style="color:${empty?'#ef4444':'#f59e0b'};font-weight:700">${item.currentStock}</td>
-      <td><span style="background:#ef444422;color:#ef4444;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:800;font-family:'IBM Plex Mono',monospace;border:1px solid #ef444440">+${needed}</span></td>
-      <td style="color:#64748b;font-size:12px">${esc(item.unit)}</td>
-    </tr>`;
-  }).join('');
-}
- 
-function switchTab(name){
-  currentTab=name;
-  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  document.querySelectorAll('.tab-btn').forEach(btn=>{
-    btn.classList.toggle('active', btn.getAttribute('onclick')===`switchTab('${name}')`);
-  });
-  if(name==='transactions') renderTx();
-  if(name==='orders') renderOrders();
-}
- 
-function openModal(itemId='', type='IN'){
-  currentType=type;
-  document.getElementById('modal-itemid').value=itemId;
-  document.getElementById('modal-qty').value='';
-  document.getElementById('modal-ref').value='';
-  document.getElementById('modal-overlay').classList.add('open');
-  setType(type);
-  updateHint();
-  document.getElementById('modal-itemid').focus();
-}
- 
-function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
- 
-function quickTx(itemId, type){ openModal(itemId, type); }
- 
-function setType(type){
-  currentType=type;
-  const btnIn=document.getElementById('btn-type-in'), btnOut=document.getElementById('btn-type-out');
-  btnIn.className='type-btn'+(type==='IN'?' active-in':'');
-  btnOut.className='type-btn'+(type==='OUT'?' active-out':'');
-  const submit=document.getElementById('btn-submit');
-  submit.textContent=type==='IN'?'ยืนยันรับเข้า':'ยืนยันเบิกออก';
-  submit.className='btn-submit '+(type==='IN'?'in':'out');
-}
- 
-function updateHint(){
-  const val=document.getElementById('modal-itemid').value;
-  const item=getItem(val);
-  const hint=document.getElementById('item-hint');
-  if(item){
-    const low=isLow(item);
-    hint.innerHTML=`${esc(item.description)} — คงเหลือ: <b style="color:${low?'#f59e0b':'#10b981'}">${item.currentStock}</b> ${esc(item.unit)}`;
-  } else { hint.innerHTML=''; }
-}
- 
-function showNotif(msg, color='#10b981'){
-  const el=document.getElementById('notif');
-  el.textContent=msg; el.style.background=color; el.style.display='block';
-  setTimeout(()=>el.style.display='none',3000);
-}
- 
-function submitTx(){
-  const itemId=document.getElementById('modal-itemid').value.trim();
-  const qty=parseInt(document.getElementById('modal-qty').value);
-  const ref=document.getElementById('modal-ref').value.trim();
-  if(!itemId) return showNotif('กรุณาระบุรหัสอะไหล่','#ef4444');
-  if(!qty||qty<=0) return showNotif('กรุณาระบุจำนวนที่ถูกต้อง','#ef4444');
-  const idx=items.findIndex(i=>i.id.toLowerCase()===itemId.toLowerCase());
-  if(idx===-1) return showNotif('ไม่พบรหัสอะไหล่ในระบบ','#ef4444');
-  const item=items[idx];
-  if(currentType==='OUT'&&item.currentStock<qty) return showNotif('สต็อกไม่เพียงพอ (คงเหลือ '+item.currentStock+' '+item.unit+')','#ef4444');
-  const newStock=currentType==='IN'?item.currentStock+qty:item.currentStock-qty;
-  items[idx]={...item,currentStock:newStock};
-  const today=new Date().toISOString().split('T')[0];
-  transactions.unshift({date:today,type:currentType,itemId:item.id,qty,ref});
+
+function confirmTx() {
+  const id = document.getElementById('tx-id').value;
+  const qty = parseInt(document.getElementById('tx-qty').value);
+  const ref = document.getElementById('tx-ref').value || '-';
+  const item = items.find(i => i.id === id);
+
+  if (currentMode === 'OUT' && item.currentStock < qty) {
+    alert('❌ สินค้าในสต็อกไม่พอเบิก!'); return;
+  }
+
+  item.currentStock += (currentMode === 'IN' ? qty : -qty);
+  txs.unshift({ time: new Date().toLocaleString('th-TH'), type: currentMode, id, qty, ref });
+  
   closeModal();
-  renderStats(); renderStock();
-  if(currentTab==='transactions') renderTx();
-  if(currentTab==='orders') renderOrders();
-  showNotif(`${currentType==='IN'?'รับเข้า':'เบิกออก'} ${item.id} จำนวน ${qty} ${item.unit} สำเร็จ`);
+  render();
 }
- 
-// Build datalist
-function buildDatalist(){
-  document.getElementById('item-datalist').innerHTML=items.map(i=>`<option value="${esc(i.id)}">${esc(i.description)}</option>`).join('');
+
+function switchTab(t) {
+  document.getElementById('tab-stock').style.display = t === 'stock' ? 'block' : 'none';
+  document.getElementById('tab-tx').style.display = t === 'tx' ? 'block' : 'none';
+  document.getElementById('b-stock').className = `tab-btn ${t==='stock'?'active':''}`;
+  document.getElementById('b-tx').className = `tab-btn ${t==='tx'?'active':''}`;
 }
- 
-// Init
-buildDatalist();
-renderStats();
-renderStock();
- 
-// Enter key submit
-document.getElementById('modal-qty').addEventListener('keydown',e=>{ if(e.key==='Enter') submitTx(); });
+
+function resetSystem() {
+  if(confirm("⚠️ คุณต้องการล้างข้อมูลการเบิกจ่ายและรีเซ็ตสต็อกทั้งหมดใช่หรือไม่?")) {
+    localStorage.clear();
+    items = [...MASTER_DATA];
+    txs = [];
+    render();
+    alert("ระบบถูกรีเซ็ตแล้ว");
+  }
+}
+
+function closeModal() { document.getElementById('tx-modal').style.display = 'none'; }
+
+render(); // Initial Load
 </script>
 </body>
 </html>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AT Stock — ระบบจัดการสต็อกอะไหล่</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0b1120;
-    --surface: #111827;
-    --surface2: #1a2436;
-    --border: #1e2d45;
-    --border2: #253654;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --blue: #3b82f6;
-    --cyan: #06b6d4;
-    --green: #10b981;
-    --yellow: #f59e0b;
-    --red: #ef4444;
-    --purple: #8b5cf6;
-  }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: var(--surface); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-  input, select, button { font-family: 'Sarabun', sans-serif; }
-
-  /* HEADER */
-  #header {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(11,17,32,0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 28px;
-  }
-  .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 62px; gap: 16px; }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
-  .logo-title { font-weight: 800; font-size: 17px; color: #f1f5f9; letter-spacing: .3px; }
-  .logo-sub { font-size: 11px; color: var(--muted); }
-  .tabs { display: flex; gap: 4px; }
-  .tab-btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .2s; background: transparent; color: var(--muted); white-space: nowrap; }
-  .tab-btn.active { background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #fff; }
-  .tab-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
-  .btn-new { background: linear-gradient(135deg, var(--blue), var(--cyan)); border: none; border-radius: 10px; padding: 10px 18px; color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: opacity .2s; }
-  .btn-new:hover { opacity: .85; }
-
-  /* MAIN */
-  .main { max-width: 1440px; margin: 0 auto; padding: 24px 28px; }
-
-  /* STATS */
-  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
-  .stat-card { background: var(--surface); border-radius: 14px; padding: 20px 22px; border: 1px solid var(--border); position: relative; overflow: hidden; transition: border-color .2s; }
-  .stat-card:hover { border-color: var(--border2); }
-  .stat-icon { position: absolute; right: 16px; top: 14px; font-size: 30px; opacity: .2; }
-  .stat-val { font-size: 36px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; }
-  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
-
-  /* FILTERS */
-  .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-  .search-box { flex: 1; min-width: 220px; background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 16px; color: var(--text); font-size: 14px; outline: none; transition: border-color .2s; }
-  .search-box:focus { border-color: var(--blue); }
-  .filter-select { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; cursor: pointer; }
-  .filter-select:focus { border-color: var(--blue); }
-  .count-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
-
-  /* TABLE */
-  .table-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
-  .table-scroll { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: var(--bg); }
-  th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; white-space: nowrap; }
-  tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
-  tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
-  tbody tr:hover { background: rgba(255,255,255,.05); }
-  td { padding: 11px 16px; font-size: 13px; vertical-align: middle; }
-  .mono { font-family: 'IBM Plex Mono', monospace; }
-  .empty-row { padding: 60px; text-align: center; color: var(--muted); font-size: 14px; }
-
-  /* BADGES */
-  .badge { display: inline-block; padding: 3px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .badge-cat-E { background: #eff6ff18; color: #60a5fa; border: 1px solid #3b82f644; }
-  .badge-cat-P { background: #f0fdf418; color: #34d399; border: 1px solid #10b98144; }
-  .badge-cat-M { background: #fffbeb18; color: #fbbf24; border: 1px solid #f59e0b44; }
-  .badge-cat-C { background: #f5f3ff18; color: #a78bfa; border: 1px solid #8b5cf644; }
-  .badge-in  { background: #10b98118; color: #10b981; border: 1px solid #10b98140; }
-  .badge-out { background: #ef444418; color: #f87171; border: 1px solid #ef444440; }
-  .badge-ok  { background: #10b98114; color: #10b981; }
-  .badge-low { background: #f59e0b14; color: #f59e0b; }
-
-  /* STOCK BAR */
-  .stock-cell { display: flex; align-items: center; gap: 10px; }
-  .bar-wrap { width: 56px; height: 5px; background: var(--border2); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
-  .bar-fill { height: 100%; border-radius: 3px; }
-
-  /* ACTION BUTTONS */
-  .act-btns { display: flex; gap: 6px; }
-  .btn-in  { background: #10b98118; border: 1px solid #10b98144; color: #10b981; padding: 5px 10px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: 700; transition: all .15s; }
-  .btn-out { background: #ef444418; border: 1px solid #ef444444; color: #f87171; padding: 5px 10px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: 700; transition: all .15s; }
-  .btn-in:hover  { background: #10b98130; }
-  .btn-out:hover { background: #ef444430; }
-
-  /* MODAL */
-  #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
-  #modal-overlay.open { display: flex; }
-  .modal { background: var(--surface2); border: 1px solid var(--border2); border-radius: 18px; padding: 32px; width: 440px; max-width: 94vw; box-shadow: 0 24px 80px rgba(0,0,0,.6); animation: slideUp .25s ease; }
-  @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-  .modal-title { font-weight: 800; font-size: 18px; color: #f1f5f9; margin-bottom: 24px; }
-  .form-label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
-  .form-group { margin-bottom: 18px; }
-  .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; transition: border-color .2s; }
-  .form-input:focus { border-color: var(--blue); }
-  .form-input.mono { font-family: 'IBM Plex Mono', monospace; }
-  .type-btns { display: flex; gap: 8px; }
-  .type-btn { flex: 1; padding: 11px; border-radius: 10px; border: 2px solid var(--border2); background: transparent; color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; }
-  .type-btn.active-in  { border-color: var(--green); background: #10b98120; color: var(--green); }
-  .type-btn.active-out { border-color: var(--red); background: #ef444420; color: #f87171; }
-  .item-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
-  .item-hint b { font-weight: 700; }
-  .modal-footer { display: flex; gap: 10px; margin-top: 8px; }
-  .btn-cancel { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border2); background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
-  .btn-cancel:hover { background: var(--surface); color: var(--text); }
-  .btn-submit { flex: 2; padding: 12px; border-radius: 10px; border: none; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
-  .btn-submit.in  { background: linear-gradient(135deg, #10b981, #059669); }
-  .btn-submit.out { background: linear-gradient(135deg, #ef4444, #dc2626); }
-  .btn-submit:hover { opacity: .88; }
-
-  /* NOTIF */
-  #notif { position: fixed; top: 20px; right: 20px; z-index: 999; padding: 12px 22px; border-radius: 10px; color: #fff; font-weight: 700; font-size: 14px; box-shadow: 0 8px 32px rgba(0,0,0,.4); display: none; animation: fadeIn .3s ease; pointer-events: none; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
-
-  /* TABS content */
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
-  /* ORDER HEADER */
-  .order-header { color: var(--yellow); font-weight: 700; font-size: 15px; margin-bottom: 16px; }
-
-  @media (max-width: 768px) {
-    .stats-grid { grid-template-columns: repeat(2,1fr); }
-    .tabs { display: none; }
-    .mobile-tabs { display: flex; gap: 4px; overflow-x: auto; margin-bottom: 16px; }
-    .header-inner { flex-wrap: wrap; height: auto; padding: 12px 0; }
-  }
-  @media (min-width: 769px) { .mobile-tabs { display: none; } }
-</style>
-</head>
-<body>
-
-<!-- NOTIFICATION -->
-<div id="notif"></div>
-
-<!-- HEADER -->
-<div id="header">
-  <div class="header-inner">
-    <div class="logo">
-      <div class="logo-icon">📦</div>
-      <div>
-        <div class="logo-title">AT Stock</div>
-        <div class="logo-sub">ระบบจัดการสต็อกอะไหล่</div>
-      </div>
-    </div>
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('stock')">📋 สต็อก</button>
-      <button class="tab-btn" onclick="switchTab('transactions')">🔄 รายการเคลื่อนไหว</button>
-      <button class="tab-btn" onclick="switchTab('orders')">⚠️ รายการสั่งซื้อ</button>
-    </div>
-    <button class="btn-new" onclick="openModal()">+ บันทึกรายการ</button>
-  </div>
-</div>
-
-<div class="main">
-  <!-- Mobile tabs -->
-  <div class="mobile-tabs">
-    <button class="tab-btn active" onclick="switchTab('stock')">📋 สต็อก</button>
-    <button class="tab-btn" onclick="switchTab('transactions')">🔄 เคลื่อนไหว</button>
-    <button class="tab-btn" onclick="switchTab('orders')">⚠️ สั่งซื้อ</button>
-  </div>
-
-  <!-- STATS -->
-  <div class="stats-grid" id="stats-grid"></div>
-
-  <!-- STOCK TAB -->
-  <div id="tab-stock" class="tab-content active">
-    <div class="filters">
-      <input class="search-box" id="search" placeholder="🔍 ค้นหารหัส / ชื่ออะไหล่..." oninput="renderStock()">
-      <select class="filter-select" id="cat-filter" onchange="renderStock()">
-        <option value="all">ทุกหมวดหมู่</option>
-        <option value="Electrical">ไฟฟ้า</option>
-        <option value="Pneumatic">นิวแมติก</option>
-        <option value="Mechanical">เครื่องกล</option>
-        <option value="Consumables">วัสดุสิ้นเปลือง</option>
-      </select>
-      <select class="filter-select" id="status-filter" onchange="renderStock()">
-        <option value="all">ทุกสถานะ</option>
-        <option value="ok">ปกติ</option>
-        <option value="low">ต้องสั่งเพิ่ม</option>
-      </select>
-      <span class="count-label" id="count-label"></span>
-    </div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table id="stock-table">
-          <thead><tr>
-            <th>รหัสอะไหล่</th><th>รายการ</th><th>หมวดหมู่</th>
-            <th>จุดสั่งซื้อ</th><th>คงเหลือ</th><th>หน่วย</th>
-            <th>สถานะ</th><th>ดำเนินการ</th>
-          </tr></thead>
-          <tbody id="stock-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- TRANSACTIONS TAB -->
-  <div id="tab-transactions" class="tab-content">
-    <div class="filters">
-      <input class="search-box" id="tx-search" placeholder="🔍 ค้นหารหัสอะไหล่ / อ้างอิง..." oninput="renderTx()">
-    </div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead><tr>
-            <th>วันที่</th><th>ประเภท</th><th>รหัสอะไหล่</th>
-            <th>รายการ</th><th>จำนวน</th><th>อ้างอิง</th>
-          </tr></thead>
-          <tbody id="tx-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ORDERS TAB -->
-  <div id="tab-orders" class="tab-content">
-    <div class="order-header" id="order-header"></div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead><tr>
-            <th>รหัสอะไหล่</th><th>รายการ</th><th>หมวดหมู่</th>
-            <th>จุดสั่งซื้อ</th><th>คงเหลือ</th><th>ต้องสั่งเพิ่ม</th><th>หน่วย</th>
-          </tr></thead>
-          <tbody id="orders-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL -->
-<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-title">📝 บันทึกรายการเคลื่อนไหว</div>
-    <div class="form-group">
-      <label class="form-label">ประเภทการดำเนินการ</label>
-      <div class="type-btns">
-        <button class="type-btn active-in" id="btn-type-in" onclick="setType('IN')">▼ รับเข้า</button>
-        <button class="type-btn" id="btn-type-out" onclick="setType('OUT')">▲ เบิกออก</button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">รหัสอะไหล่ *</label>
-      <input class="form-input mono" id="modal-itemid" placeholder="เช่น BNL6, YW1P-1UQ4G" oninput="updateHint()" list="item-datalist">
-      <datalist id="item-datalist"></datalist>
-      <div class="item-hint" id="item-hint"></div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">จำนวน *</label>
-      <input class="form-input mono" id="modal-qty" type="number" min="1" placeholder="0">
-    </div>
-    <div class="form-group">
-      <label class="form-label">อ้างอิง / โปรเจกต์ (ถ้ามี)</label>
-      <input class="form-input" id="modal-ref" placeholder="ชื่อโปรเจกต์หรือผู้เบิก">
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn-submit in" id="btn-submit" onclick="submitTx()">ยืนยันรับเข้า</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const CAT_TH = { Electrical:'ไฟฟ้า', Pneumatic:'นิวแมติก', Mechanical:'เครื่องกล', Consumables:'วัสดุสิ้นเปลือง' };
-const CAT_CLASS = { Electrical:'badge-cat-E', Pneumatic:'badge-cat-P', Mechanical:'badge-cat-M', Consumables:'badge-cat-C' };
-
-let items = [{"id":"BNL6","description":"สต๊อปเปอร์เทอร์มินอล IDEC BNL6","category":"Electrical","minStock":10,"currentStock":20,"unit":"ตัว"},{"id":"DB-C8-J10-F11R","description":"ปลั๊ก DB-C8-J10-F11R","category":"Electrical","minStock":2,"currentStock":3,"unit":"ตัว"},{"id":"พัดลม5V","description":"พัดลม DC-Brushless 5V-DC","category":"Electrical","minStock":2,"currentStock":4,"unit":"ตัว"},{"id":"พัดลม220V80x80x25","description":"พัดลมระบายอากาศ 220/240VAC 80x80x25mm.","category":"Electrical","minStock":2,"currentStock":4,"unit":"ตัว"},{"id":"1.5-3S","description":"หางปลาเปลือย 1.5-3S","category":"Electrical","minStock":200,"currentStock":500,"unit":"ตัว"},{"id":"2.5-4S","description":"หางปลาเปลือย 2.5-4S","category":"Electrical","minStock":200,"currentStock":200,"unit":"ตัว"},{"id":"YW1P-1UQM3G","description":"IDEC PILOTLIGHT YW1P-1UQM3G 220VAC","category":"Electrical","minStock":5,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4G","description":"IDEC PILOTLIGHT YW1P-1UQ4G 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4PW","description":"IDEC PILOTLIGHT YW1P-1UQ4PW 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4R","description":"IDEC PILOTLIGHT YW1P-1UQ4R 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1B-A1E10G","description":"IDEC PUSHBUTTON SWITCH YW1B-A1E10G","category":"Electrical","minStock":10,"currentStock":10,"unit":"ตัว"},{"id":"YW1B-M1E01R","description":"IDEC PUSHBUTTON SWITCH YW1B-M1E01R","category":"Electrical","minStock":10,"currentStock":3,"unit":"ตัว"},{"id":"YW1L-M2E11Q4Y","description":"IDEC PUSHBUTTON SWITCH YW1L-M2E11Q4Y","category":"Electrical","minStock":10,"currentStock":1,"unit":"ตัว"},{"id":"YW1S-2E10","description":"IDEC SELECTOR SWITCH YW1S-2E10","category":"Electrical","minStock":10,"currentStock":2,"unit":"ตัว"},{"id":"YW1S-2E20","description":"IDEC SELECTOR SWITCH YW1S-2E20","category":"Electrical","minStock":10,"currentStock":2,"unit":"ตัว"},{"id":"H05VK 1x0.75","description":"สายคอนโทรล H05VK 1x0.75 SQ.MM.(YELLOW)","category":"Electrical","minStock":100,"currentStock":50,"unit":"เมตร"},{"id":"H05VK 1x0.50","description":"สายคอนโทรล H05VK 1x0.50 SQ.MM.(BLUE)","category":"Electrical","minStock":100,"currentStock":250,"unit":"เมตร"},{"id":"FX3G-40M","description":"PLC FX3G-40M","category":"Electrical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"FX3G-60M","description":"PLC FX3G-60M","category":"Electrical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"S8FS-C03524","description":"Power Supply S8FS-C03524","category":"Electrical","minStock":2,"currentStock":2,"unit":"ตัว"},{"id":"S8FS-C05024","description":"Power Supply S8FS-C05024","category":"Electrical","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"PYFZ-08-E","description":"Socket Relay PYFZ-08-E","category":"Electrical","minStock":10,"currentStock":0,"unit":"ตัว"},{"id":"MY2N","description":"Relay MY2N 24VDC","category":"Electrical","minStock":10,"currentStock":10,"unit":"ตัว"},{"id":"H3Y-2","description":"Relay Timer H3Y-2 24VDC","category":"Electrical","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"ER17/50","description":"Batt. maxell ER17/50 3.6v","category":"Electrical","minStock":10,"currentStock":10,"unit":"ก้อน"},{"id":"CR14250SE","description":"Batt. FDK CR14250SE 3V","category":"Electrical","minStock":10,"currentStock":0,"unit":"ก้อน"},{"id":"D-P3DWA","description":"Reed Switch SMC D-P3DWA","category":"Electrical","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"DPSP1","description":"Sensor AirTAC DPSP1-10020","category":"Electrical","minStock":5,"currentStock":0,"unit":"ตัว"},{"id":"QPU4","description":"ข้อต่อตรง QPU 4","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"QPU6","description":"ข้อต่อตรง QPU 6","category":"Pneumatic","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"QPU8","description":"ข้อต่อตรง QPU 8","category":"Pneumatic","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"QPU6-4","description":"ข้อต่อตรง QPU 6-4","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QPU8-6","description":"ข้อต่อตรง QPU 8-6","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPE6","description":"ข้อต่อสามทาง QPE 6","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPE8","description":"ข้อต่อสามทาง QPE 8","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPE6-4","description":"ข้อต่อสามทาง QPE 6-4","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPE8-6","description":"ข้อต่อสามทาง QPE 8-6","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QPE10-8","description":"ข้อต่อสามทาง QPE 10-8","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QJSC4-M5","description":"ข้อต่อปรับลม QJSC 4-M5","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QJSC6-M5","description":"ข้อต่อปรับลม QJSC 6-M5","category":"Pneumatic","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"QJSC8-1/8","description":"ข้อต่อปรับลม QJSC 8-1/8","category":"Pneumatic","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"QJSC8-1/4","description":"ข้อต่อปรับลม QJSC 8-1/4","category":"Pneumatic","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"QPL6-1/8","description":"ข้อต่อ 90 QPL 6-1/8","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPL6-1/4","description":"ข้อต่อ 90 QPL 6-1/4","category":"Pneumatic","minStock":20,"currentStock":23,"unit":"ตัว"},{"id":"QPL6-3/8","description":"ข้อต่อ 90 QPL 6-3/8","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPL6-1/2","description":"ข้อต่อ 90 QPL 6-1/2","category":"Pneumatic","minStock":20,"currentStock":1,"unit":"ตัว"},{"id":"QPL6-M5","description":"ข้อต่อ 90 QPL 6-M5","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QPL8-1/8","description":"ข้อต่อ 90 QPL 8-1/8","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPL8-1/4","description":"ข้อต่อ 90 QPL 8-1/4","category":"Pneumatic","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"QPL8-3/8","description":"ข้อต่อ 90 QPL 8-3/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPL8-1/2","description":"ข้อต่อ 90 QPL 8-1/2","category":"Pneumatic","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"QPC4-M5","description":"ข้อต่อลม QPC 4-M5","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPC6-1/8","description":"ข้อต่อลม QPC 6-1/8","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QPC6-1/4","description":"ข้อต่อลม QPC 6-1/4","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPC6-3/8","description":"ข้อต่อลม QPC 6-3/8","category":"Pneumatic","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"QPC6-1/2","description":"ข้อต่อลม QPC 6-1/2","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPC6-M5","description":"ข้อต่อลม QPC 6-M5","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPC8-1/8","description":"ข้อต่อลม QPC 8-1/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPC8-1/4","description":"ข้อต่อลม QPC 8-1/4","category":"Pneumatic","minStock":20,"currentStock":13,"unit":"ตัว"},{"id":"QPC8-3/8","description":"ข้อต่อลม QPC 8-3/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPC8-1/2","description":"ข้อต่อลม QPC 8-1/2","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPY4","description":"ข้อต่อลม QPY 4","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"QPY6","description":"ข้อต่อลม QPY 6","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPY8","description":"ข้อต่อลม QPY 8","category":"Pneumatic","minStock":20,"currentStock":22,"unit":"ตัว"},{"id":"QPY10","description":"ข้อต่อลม QPY 10","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"PSA6","description":"ข้อต่อลมแบบปรับได้ PSA 6","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"PSA8","description":"ข้อต่อลมแบบปรับได้ PSA 8","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"2V13010B","description":"Solenoid Valve 2V13010B","category":"Pneumatic","minStock":5,"currentStock":1,"unit":"ตัว"},{"id":"4V230C-08","description":"Solenoid Valve 4V230C-08","category":"Pneumatic","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"SY5220-5LZ-C4","description":"Solenoid Valve SY5220-5LZ-C4","category":"Pneumatic","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"SY5220-5LZ-C6","description":"Solenoid Valve SY5220-5LZ-C6","category":"Pneumatic","minStock":5,"currentStock":1,"unit":"ตัว"},{"id":"MHL2-10D1","description":"AIR GRIPPER MHL2-10D1 (SMC)","category":"Pneumatic","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"HFCI40","description":"AIR GRIPPER HFCI40 (AIRTEC)","category":"Pneumatic","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"MHS4-40D","description":"AIR GRIPPER MHS4-40D (SMC)","category":"Pneumatic","minStock":2,"currentStock":2,"unit":"ตัว"},{"id":"MHZL2-25D","description":"AIR GRIPPER MHZL2-25D (SMC)","category":"Pneumatic","minStock":2,"currentStock":3,"unit":"ตัว"},{"id":"สายลม6","description":"สายลม PU 6mm.","category":"Pneumatic","minStock":100,"currentStock":100,"unit":"เมตร"},{"id":"สายลม8","description":"สายลม PU 8mm.","category":"Pneumatic","minStock":100,"currentStock":100,"unit":"เมตร"},{"id":"หัวเตเปอร์M3x25","description":"สกรูหัวเตเปอร์ M3x25 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวเตเปอร์M5x10","description":"สกรูหัวเตเปอร์ M5x10 mm.","category":"Mechanical","minStock":20,"currentStock":12,"unit":"ตัว"},{"id":"หัวเตเปอร์M6x10","description":"สกรูหัวเตเปอร์ M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM3x10","description":"สกรูหัวจม M3x10 mm.","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"หัวจมM3x15","description":"สกรูหัวจม M3x15 mm.","category":"Mechanical","minStock":20,"currentStock":1,"unit":"ตัว"},{"id":"หัวจมM3x40","description":"สกรูหัวจม M3x40 mm.","category":"Mechanical","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"หัวจมM4x10","description":"สกรูหัวจม M4x10 mm.","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"หัวจมM4x15","description":"สกรูหัวจม M4x15 mm.","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"หัวจมM4x80","description":"สกรูหัวจม M4x80 mm.","category":"Mechanical","minStock":20,"currentStock":13,"unit":"ตัว"},{"id":"หัวจมM5x20","description":"สกรูหัวจม M5x20 mm.","category":"Mechanical","minStock":20,"currentStock":2,"unit":"ตัว"},{"id":"หัวจมM5x50","description":"สกรูหัวจม M5x50 mm.","category":"Mechanical","minStock":20,"currentStock":11,"unit":"ตัว"},{"id":"หัวจมM5x70","description":"สกรูหัวจม M5x70 mm.","category":"Mechanical","minStock":20,"currentStock":35,"unit":"ตัว"},{"id":"หัวจมM5x80","description":"สกรูหัวจม M5x80 mm.","category":"Mechanical","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"หัวจมM6x5","description":"สกรูหัวจม M6x5 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมM6x10","description":"สกรูหัวจม M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"หัวจมM6x15","description":"สกรูหัวจม M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"หัวจมM6x25","description":"สกรูหัวจม M6x25 mm.","category":"Mechanical","minStock":20,"currentStock":2,"unit":"ตัว"},{"id":"หัวจมM6x40","description":"สกรูหัวจม M6x40 mm.","category":"Mechanical","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"หัวจมM6x45","description":"สกรูหัวจม M6x45 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x15","description":"สกรูหัวจม M8x15 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x20","description":"สกรูหัวจม M8x20 mm.","category":"Mechanical","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"หัวจมM8x25","description":"สกรูหัวจม M8x25 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x30","description":"สกรูหัวจม M8x30 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมM8x40","description":"สกรูหัวจม M8x40 mm.","category":"Mechanical","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"หัวจมชุปM5x8","description":"สกรูหัวจมชุปซิง M5x8 mm.","category":"Mechanical","minStock":20,"currentStock":80,"unit":"ตัว"},{"id":"หัวจมชุปM5x12","description":"สกรูหัวจมชุปซิง M5x12 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมชุปM6x12","description":"สกรูหัวจมชุปซิง M6x12 mm.","category":"Mechanical","minStock":20,"currentStock":60,"unit":"ตัว"},{"id":"หัวจมชุปM6x15","description":"สกรูหัวจมชุปซิง M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM4x30","description":"สกรูหัวจมสแตนเลส M4x30 mm.","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x10","description":"สกรูหัวจมสแตนเลส M5x10 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x15","description":"สกรูหัวจมสแตนเลส M5x15 mm.","category":"Mechanical","minStock":20,"currentStock":16,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x25","description":"สกรูหัวจมสแตนเลส M5x25 mm.","category":"Mechanical","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM6x10","description":"สกรูหัวจมสแตนเลส M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM6x15","description":"สกรูหัวจมสแตนเลส M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"น็อตM3","description":"น็อต M3","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"น็อตM4","description":"น็อต M4","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"น็อตM5","description":"น็อต M5","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"น็อตM6","description":"น็อต M6","category":"Mechanical","minStock":20,"currentStock":16,"unit":"ตัว"},{"id":"น็อตM8","description":"น็อต M8","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"น็อตM10","description":"น็อต M10","category":"Mechanical","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"แหวนสปิงM3","description":"แหวนสปิง M3","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงM4","description":"แหวนสปิง M4","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงM5","description":"แหวนสปิง M5","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงM6","description":"แหวนสปิง M6","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM3","description":"แหวนสปิง M3 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM4","description":"แหวนสปิง M4 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM5","description":"แหวนสปิง M5 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM6","description":"แหวนสปิง M6 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":12,"unit":"ตัว"},{"id":"แหวนอิแปะM3","description":"แหวนอิแปะ M3","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะM4","description":"แหวนอิแปะ M4","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะM5","description":"แหวนอิแปะ M5","category":"Mechanical","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"แหวนอิแปะM6","description":"แหวนอิแปะ M6","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM3","description":"แหวนอิแปะ M3 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM4","description":"แหวนอิแปะ M4 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM5","description":"แหวนอิแปะ M5 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM6","description":"แหวนอิแปะ M6 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"AB060A050S2P2","description":"GearServo APEX AB060A-050-S2-P2","category":"Mechanical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"เคเบิ้นไทร์4","description":"เคเบิ้นไทร์ 4\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"เคเบิ้นไทร์6","description":"เคเบิ้นไทร์ 6\"","ca

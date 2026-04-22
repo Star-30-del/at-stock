@@ -18,37 +18,38 @@
   /* LOGIN SCREEN */
   #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; }
   .login-card { background: var(--surface); padding: 40px; border-radius: 20px; border: 1px solid var(--border); width: 360px; text-align: center; }
+  .login-card h2 { margin-bottom: 20px; color: var(--blue); }
   
-  /* APP CONTENT (Hidden initially) */
+  /* APP CONTENT */
   #app-content { display: none; }
-
-  /* UI Components */
   #header { position: sticky; top: 0; z-index: 100; background: rgba(11,17,32,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 28px; }
   .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 62px; }
   .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; }
   .main { max-width: 1440px; margin: 0 auto; padding: 24px 28px; }
   
-  /* Tables & Badges */
+  /* TABS */
+  .tab-btn { padding: 8px 18px; border: none; cursor: pointer; background: transparent; color: var(--muted); font-weight: 600; border-radius: 8px; }
+  .tab-btn.active { background: var(--blue); color: #fff; }
+
+  /* TABLE */
   .table-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow-x: auto; margin-top: 20px; }
   table { width: 100%; border-collapse: collapse; min-width: 800px; }
   th { padding: 12px 16px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; }
   td { padding: 12px 16px; font-size: 13px; border-top: 1px solid var(--border); }
-  .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .badge-ok { background: #10b98114; color: #10b981; }
-  .badge-low { background: #f59e0b14; color: #f59e0b; }
   .mono { font-family: 'IBM Plex Mono', monospace; }
+  .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-low { background: #f59e0b14; color: #f59e0b; }
+  .badge-ok { background: #10b98114; color: #10b981; }
 
-  /* Modals */
+  /* MODAL */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); display: none; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(4px); }
-  .modal { background: var(--surface2); padding: 30px; border-radius: 18px; width: 400px; border: 1px solid var(--border2); }
+  .modal { background: var(--surface2); padding: 30px; border-radius: 18px; width: 420px; border: 1px solid var(--border2); }
   .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; padding: 10px; color: #fff; margin: 8px 0 16px; outline: none; }
   .btn-submit { background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; }
   
-  /* Stats Cards */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .stat-card { background: var(--surface); padding: 20px; border-radius: 14px; border: 1px solid var(--border); }
-  .tab-btn { padding: 8px 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; }
-  .tab-btn.active { background: var(--blue); color: #fff; }
+  /* ACTIONS */
+  .btn-edit { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+  .btn-edit:hover { color: var(--blue); border-color: var(--blue); }
 </style>
 </head>
 <body>
@@ -56,7 +57,7 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="logo-icon" style="margin: 0 auto 15px;">📦</div>
-    <h2>AT Stock Login</h2><br>
+    <h2>AT Stock Login</h2>
     <input type="password" id="login-pass" class="form-input" placeholder="รหัสผ่าน (admin123)">
     <button class="btn-submit" onclick="checkLogin()">เข้าสู่ระบบ</button>
   </div>
@@ -70,18 +71,16 @@
         <span style="font-weight:800;">AT Stock</span>
       </div>
       <div style="display:flex; gap:10px;">
-        <button class="tab-btn active" onclick="switchTab('stock')">คลังสินค้า</button>
-        <button class="tab-btn" onclick="switchTab('tx')">ประวัติ</button>
+        <button class="tab-btn active" id="tab-s" onclick="switchTab('stock')">คลังสินค้า</button>
+        <button class="tab-btn" id="tab-t" onclick="switchTab('tx')">ประวัติการเบิก/รับ</button>
       </div>
     </div>
   </div>
 
   <div class="main">
-    <div id="stats-grid" class="stats-grid"></div>
-
     <div id="tab-stock">
       <div style="display:flex; gap:10px; margin-bottom:15px;">
-        <input type="text" id="search" class="form-input" style="margin:0;" placeholder="🔍 ค้นหาชื่อหรือรหัสอะไหล่..." oninput="renderAll()">
+        <input type="text" id="search" class="form-input" style="margin:0;" placeholder="🔍 ค้นหารหัสหรือชื่ออะไหล่..." oninput="renderAll()">
       </div>
       <div class="table-wrap">
         <table>
@@ -102,41 +101,41 @@
   </div>
 </div>
 
-<div id="tx-modal" class="modal-overlay">
+<div id="edit-modal" class="modal-overlay">
   <div class="modal">
-    <h3 id="tx-title">ทำรายการ</h3>
-    <input type="hidden" id="tx-id">
-    <label class="form-label">จำนวน</label>
-    <input type="number" id="tx-qty" class="form-input" value="1">
-    <label class="form-label">อ้างอิง/โปรเจกต์</label>
-    <input type="text" id="tx-ref" class="form-input" placeholder="เช่น Union Project">
-    <button class="btn-submit" onclick="submitTx()">ยืนยันรายการ</button>
+    <h3>⚙️ แก้ไขข้อมูลอะไหล่</h3><br>
+    <input type="hidden" id="edit-id">
+    <label style="font-size:12px; color:var(--muted)">ชื่อรายการ</label>
+    <input type="text" id="edit-desc" class="form-input">
+    <label style="font-size:12px; color:var(--muted)">จุดสั่งซื้อ (Min Stock)</label>
+    <input type="number" id="edit-min" class="form-input">
+    <button class="btn-submit" onclick="saveEdit()">บันทึกการแก้ไข</button>
     <button onclick="closeModals()" style="background:none; border:none; color:var(--muted); margin-top:10px; cursor:pointer; width:100%;">ยกเลิก</button>
   </div>
 </div>
 
-<div id="edit-modal" class="modal-overlay">
+<div id="tx-modal" class="modal-overlay">
   <div class="modal">
-    <h3>⚙️ แก้ไขจุดสั่งซื้อ</h3>
-    <input type="hidden" id="edit-id">
-    <label class="form-label">ชื่ออะไหล่</label>
-    <input type="text" id="edit-desc" class="form-input">
-    <label class="form-label">จุดสั่งซื้อ (Min Stock)</label>
-    <input type="number" id="edit-min" class="form-input">
-    <button class="btn-submit" onclick="saveEdit()">บันทึกข้อมูล</button>
+    <h3 id="tx-title">ทำรายการ</h3><br>
+    <input type="hidden" id="tx-id">
+    <label style="font-size:12px; color:var(--muted)">จำนวน</label>
+    <input type="number" id="tx-qty" class="form-input" value="1">
+    <label style="font-size:12px; color:var(--muted)">อ้างอิง (โปรเจกต์/ชื่อผู้เบิก)</label>
+    <input type="text" id="tx-ref" class="form-input" placeholder="ระบุโปรเจกต์">
+    <button class="btn-submit" id="tx-btn-sub" onclick="submitTx()">ยืนยัน</button>
     <button onclick="closeModals()" style="background:none; border:none; color:var(--muted); margin-top:10px; cursor:pointer; width:100%;">ยกเลิก</button>
   </div>
 </div>
 
 <script>
 const MASTER_PASS = "admin123";
-let items = JSON.parse(localStorage.getItem('at_stock_data')) || [
-  {"id":"BNL6","description":"สต๊อปเปอร์เทอร์มินอล IDEC BNL6","category":"Electrical","minStock":10,"currentStock":20,"unit":"ตัว"},
-  {"id":"YW1P-1UQ4G","description":"IDEC PILOTLIGHT 24VDC GREEN","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},
-  {"id":"QPU6","description":"ข้อต่อตรง QPU 6","category":"Pneumatic","minStock":20,"currentStock":30,"unit":"ตัว"}
-];
-let transactions = JSON.parse(localStorage.getItem('at_stock_tx')) || [];
-let currentMode = "IN";
+let currentTxMode = "IN";
+
+// ฐานข้อมูลเริ่มต้น
+const initialItems = [{"id":"BNL6","description":"สต๊อปเปอร์เทอร์มินอล IDEC BNL6","category":"Electrical","minStock":10,"currentStock":20,"unit":"ตัว"},{"id":"YW1P-1UQ4G","description":"IDEC PILOTLIGHT 24VDC GREEN","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"QPU6","description":"ข้อต่อตรง QPU 6","category":"Pneumatic","minStock":20,"currentStock":30,"unit":"ตัว"}];
+
+let items = JSON.parse(localStorage.getItem('at_items')) || initialItems;
+let transactions = JSON.parse(localStorage.getItem('at_tx')) || [];
 
 function checkLogin() {
   if(document.getElementById('login-pass').value === MASTER_PASS) {
@@ -149,6 +148,7 @@ function checkLogin() {
 function renderAll() {
   const search = document.getElementById('search').value.toLowerCase();
   const body = document.getElementById('stock-body');
+  
   body.innerHTML = items.filter(i => i.id.toLowerCase().includes(search) || i.description.toLowerCase().includes(search)).map(item => {
     const isLow = item.currentStock <= item.minStock;
     return `<tr>
@@ -156,42 +156,27 @@ function renderAll() {
       <td>${item.description}</td>
       <td class="mono" style="font-weight:700; color:${isLow?'var(--yellow)':'inherit'}">${item.currentStock}</td>
       <td class="mono">${item.minStock}</td>
-      <td><span class="badge ${isLow?'badge-low':'badge-ok'}">${isLow?'⚠️ สั่งเพิ่ม':'✅ ปกติ'}</span></td>
+      <td><span class="badge ${isLow?'badge-low':'badge-ok'}">${isLow?'⚠️ ต่ำกว่าจุดสั่ง':'✅ ปกติ'}</span></td>
       <td>
         <button onclick="openTx('IN','${item.id}')" style="color:var(--green); background:none; border:none; cursor:pointer; font-weight:700;">รับ</button> | 
         <button onclick="openTx('OUT','${item.id}')" style="color:var(--red); background:none; border:none; cursor:pointer; font-weight:700;">เบิก</button> |
-        <button onclick="openEdit('${item.id}')" style="color:var(--muted); background:none; border:none; cursor:pointer;">⚙️</button>
+        <button class="btn-edit" onclick="openEdit('${item.id}')">⚙️</button>
       </td>
     </tr>`;
   }).join('');
 
   document.getElementById('tx-body').innerHTML = transactions.map(t => `
-    <tr><td>${t.date}</td><td>${t.type==='IN'?'📥 รับ':'📤 เบิก'}</td><td>${t.id}</td><td>${t.qty}</td><td>${t.ref}</td></tr>
+    <tr><td>${t.date}</td><td>${t.type==='IN'?'📥 รับ':'📤 เบิก'}</td><td class="mono">${t.id}</td><td>${t.qty}</td><td>${t.ref}</td></tr>
   `).join('');
-  
-  updateStats();
-  localStorage.setItem('at_stock_data', JSON.stringify(items));
-  localStorage.setItem('at_stock_tx', JSON.stringify(transactions));
-}
 
-function updateStats() {
-  const low = items.filter(i => i.currentStock <= i.minStock).length;
-  document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><h3>${items.length}</h3><p style="color:var(--muted); font-size:12px;">รายการทั้งหมด</p></div>
-    <div class="stat-card" style="border-color:var(--red)"><h3>${low}</h3><p style="color:var(--red); font-size:12px;">ต้องสั่งเพิ่มด่วน</p></div>
-  `;
-}
-
-function switchTab(t) {
-  document.getElementById('tab-stock').style.display = t === 'stock' ? 'block' : 'none';
-  document.getElementById('tab-tx').style.display = t === 'tx' ? 'block' : 'none';
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(t==='stock'?'คลัง':'ประวัติ')));
+  localStorage.setItem('at_items', JSON.stringify(items));
+  localStorage.setItem('at_tx', JSON.stringify(transactions));
 }
 
 function openTx(mode, id) {
-  currentMode = mode;
+  currentTxMode = mode;
   document.getElementById('tx-id').value = id;
-  document.getElementById('tx-title').innerText = mode === 'IN' ? '📥 รับเข้าสต็อก' : '📤 เบิกจ่ายสต็อก';
+  document.getElementById('tx-title').innerText = mode === 'IN' ? '📥 รับเข้าสต็อก' : '📤 เบิกออกสต็อก';
   document.getElementById('tx-modal').style.display = 'flex';
 }
 
@@ -201,10 +186,10 @@ function submitTx() {
   const ref = document.getElementById('tx-ref').value || '-';
   const item = items.find(i => i.id === id);
   
-  if(currentMode === 'OUT' && item.currentStock < qty) return alert("ยอดคงเหลือไม่พอ!");
+  if(currentTxMode === 'OUT' && item.currentStock < qty) return alert("ยอดคงเหลือไม่พอสำหรับการเบิก!");
   
-  item.currentStock += (currentMode === 'IN' ? qty : -qty);
-  transactions.unshift({ date: new Date().toLocaleDateString('th-TH'), type: currentMode, id, qty, ref });
+  item.currentStock += (currentTxMode === 'IN' ? qty : -qty);
+  transactions.unshift({ date: new Date().toLocaleString('th-TH'), type: currentTxMode, id, qty, ref });
   closeModals();
   renderAll();
 }
@@ -218,11 +203,19 @@ function openEdit(id) {
 }
 
 function saveEdit() {
-  const item = items.find(i => i.id === document.getElementById('edit-id').value);
+  const id = document.getElementById('edit-id').value;
+  const item = items.find(i => i.id === id);
   item.description = document.getElementById('edit-desc').value;
   item.minStock = parseInt(document.getElementById('edit-min').value);
   closeModals();
   renderAll();
+}
+
+function switchTab(t) {
+  document.getElementById('tab-stock').style.display = t === 'stock' ? 'block' : 'none';
+  document.getElementById('tab-tx').style.display = t === 'tx' ? 'block' : 'none';
+  document.getElementById('tab-s').classList.toggle('active', t === 'stock');
+  document.getElementById('tab-t').classList.toggle('active', t === 'tx');
 }
 
 function closeModals() {

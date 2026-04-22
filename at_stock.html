@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AT Stock — ระบบจัดการสต็อกอะไหล่</title>
+<title>AT Stock — ระบบจัดการสต็อก</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,213 +13,197 @@
     --muted: #64748b; --blue: #3b82f6; --cyan: #06b6d4;
     --green: #10b981; --yellow: #f59e0b; --red: #ef4444;
   }
-  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
   
-  /* HEADER */
+  /* LOGIN SCREEN */
+  #login-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+  .login-box { background: var(--surface); padding: 40px; border-radius: 20px; border: 1px solid var(--border); width: 350px; text-align: center; }
+  
+  /* LAYOUT */
+  #app-content { display: none; }
   #header { position: sticky; top: 0; z-index: 100; background: rgba(11,17,32,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 28px; }
   .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 62px; }
-  .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; }
-  .tabs { display: flex; gap: 5px; }
-  .tab-btn { padding: 8px 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; font-weight: 600; font-size: 13px; }
+  .tab-btn { padding: 8px 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; font-weight: 600; }
   .tab-btn.active { background: var(--blue); color: #fff; }
 
-  /* MAIN CONTENT */
+  /* COMPONENTS */
   .main { max-width: 1440px; margin: 0 auto; padding: 20px 28px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-  .stat-card { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
-  .stat-val { font-size: 24px; font-weight: 800; font-family: 'IBM Plex Mono'; color: var(--cyan); }
-
-  /* TABLE */
   .table-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  table { width: 100%; border-collapse: collapse; min-width: 850px; }
   th { padding: 12px 16px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; background: rgba(0,0,0,0.2); }
   td { padding: 12px 16px; font-size: 13px; border-top: 1px solid var(--border); }
   .mono { font-family: 'IBM Plex Mono', monospace; }
-  
-  /* UTILS */
-  .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-  .badge-low { background: #f59e0b20; color: var(--yellow); border: 1px solid #f59e0b40; }
-  .badge-ok { background: #10b98120; color: var(--green); border: 1px solid #10b98140; }
-  .search-box { width: 100%; padding: 10px; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: #fff; margin-bottom: 15px; }
+  .input-field { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; padding: 10px; color: #fff; outline: none; margin-bottom: 15px; }
   
   /* MODAL */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); display: none; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(4px); }
-  .modal { background: var(--surface2); padding: 25px; border-radius: 18px; width: 400px; border: 1px solid var(--border2); }
-  .btn-submit { background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 10px; }
-  .btn-reset { background: #ef444415; color: var(--red); border: 1px solid #ef444440; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .modal { background: var(--surface2); padding: 25px; border-radius: 18px; width: 380px; border: 1px solid var(--border2); }
+  .btn-primary { background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; width: 100%; }
+  .btn-edit-tool { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+  .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+  .badge-low { background: #f59e0b15; color: var(--yellow); }
 </style>
 </head>
 <body>
 
-<div id="header">
-  <div class="header-inner">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <div class="logo-icon">📦</div>
-      <span style="font-weight:800;">AT STOCK</span>
-    </div>
-    <div class="tabs">
-      <button class="tab-btn active" id="b-stock" onclick="switchTab('stock')">คลังอะไหล่</button>
-      <button class="tab-btn" id="b-tx" onclick="switchTab('tx')">ประวัติเบิก/รับ</button>
-    </div>
-    <button class="btn-reset" onclick="resetSystem()">ล้างข้อมูลระบบ</button>
+<div id="login-overlay">
+  <div class="login-box">
+    <div style="font-size: 40px; margin-bottom: 10px;">🛡️</div>
+    <h2 style="margin-bottom: 20px;">AT Stock Login</h2>
+    <input type="password" id="pass-input" class="input-field" placeholder="ใส่รหัสผ่าน...">
+    <button class="btn-primary" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <p style="font-size: 11px; color: var(--muted); margin-top: 15px;">Default Pass: admin123</p>
   </div>
 </div>
 
-<div class="main">
-  <div id="tab-stock">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div style="font-size:12px; color:var(--muted)">รายการทั้งหมด</div>
-        <div class="stat-val" id="stat-total">0</div>
+<div id="app-content">
+  <div id="header">
+    <div class="header-inner">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:35px; height:35px; background:var(--blue); border-radius:8px; display:flex; align-items:center; justify-content:center;">📦</div>
+        <span style="font-weight:800;">AT STOCK</span>
       </div>
-      <div class="stat-card">
-        <div style="font-size:12px; color:var(--muted)">สินค้าต้องสั่งเพิ่ม</div>
-        <div class="stat-val" id="stat-low" style="color:var(--yellow)">0</div>
+      <div class="tabs">
+        <button class="tab-btn active" id="ts" onclick="switchTab('stock')">คลังอะไหล่</button>
+        <button class="tab-btn" id="tt" onclick="switchTab('tx')">ประวัติรายการ</button>
       </div>
-    </div>
-
-    <input type="text" id="search" class="search-box" placeholder="🔍 ค้นหาด้วยรหัส หรือ ชื่ออะไหล่..." oninput="render()">
-    
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>รหัสอะไหล่</th><th>ชื่อรายการ</th><th>คงเหลือ</th><th>Min</th><th>สถานะ</th><th>จัดการ</th></tr>
-        </thead>
-        <tbody id="stock-body"></tbody>
-      </table>
+      <button onclick="location.reload()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:12px;">ออกจากระบบ</button>
     </div>
   </div>
 
-  <div id="tab-tx" style="display:none;">
-    <h3>🔄 ประวัติรายการเคลื่อนไหว</h3><br>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>วันที่/เวลา</th><th>ประเภท</th><th>รหัส</th><th>จำนวน</th><th>อ้างอิง</th></tr>
-        </thead>
-        <tbody id="tx-body"></tbody>
-      </table>
+  <div class="main">
+    <div id="tab-stock">
+      <input type="text" id="search" class="input-field" placeholder="🔍 ค้นหารหัส หรือ รายการ..." oninput="render()">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>รหัสอะไหล่</th><th>ชื่อรายการ</th><th>คงเหลือ</th><th>จุดสั่งซื้อ</th><th>สถานะ</th><th>จัดการ</th></tr>
+          </thead>
+          <tbody id="stock-body"></tbody>
+        </table>
+      </div>
     </div>
+
+    <div id="tab-tx" style="display:none;">
+      <h3>🔄 ประวัติเบิก/รับ</h3><br>
+      <div class="table-wrap"><table id="tx-table"><thead><tr><th>วัน/เวลา</th><th>รหัส</th><th>จำนวน</th><th>อ้างอิง</th></tr></thead><tbody id="tx-body"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<div id="edit-modal" class="modal-overlay">
+  <div class="modal">
+    <h3 style="margin-bottom:20px;">⚙️ แก้ไขจุดสั่งซื้อ</h3>
+    <input type="hidden" id="edit-id">
+    <label style="font-size:12px; color:var(--muted)">ชื่อรายการ</label>
+    <input type="text" id="edit-name" class="input-field">
+    <label style="font-size:12px; color:var(--muted)">จุดสั่งซื้อขั้นต่ำ (Min Stock)</label>
+    <input type="number" id="edit-min" class="input-field">
+    <button class="btn-primary" onclick="saveEdit()">บันทึกการแก้ไข</button>
+    <button onclick="closeModals()" style="background:none; border:none; color:var(--muted); width:100%; margin-top:10px; cursor:pointer;">ยกเลิก</button>
   </div>
 </div>
 
 <div id="tx-modal" class="modal-overlay">
   <div class="modal">
-    <h3 id="tx-title">ทำรายการ</h3><br>
-    <input type="hidden" id="tx-id">
-    <div style="margin-bottom:15px;">
-      <label style="font-size:12px; color:var(--muted)">จำนวน</label>
-      <input type="number" id="tx-qty" class="search-box" value="1" style="margin:5px 0 0;">
-    </div>
-    <div style="margin-bottom:15px;">
-      <label style="font-size:12px; color:var(--muted)">อ้างอิง (โปรเจกต์/ผู้เบิก)</label>
-      <input type="text" id="tx-ref" class="search-box" placeholder="-" style="margin:5px 0 0;">
-    </div>
-    <button class="btn-submit" onclick="confirmTx()">บันทึกรายการ</button>
-    <button onclick="closeModal()" style="background:none; border:none; color:var(--muted); width:100%; margin-top:10px; cursor:pointer;">ยกเลิก</button>
+    <h3 id="tx-title" style="margin-bottom:20px;">บันทึกรายการ</h3>
+    <input type="hidden" id="tx-target-id">
+    <label style="font-size:12px; color:var(--muted)">จำนวน</label>
+    <input type="number" id="tx-qty" class="input-field" value="1">
+    <label style="font-size:12px; color:var(--muted)">อ้างอิง</label>
+    <input type="text" id="tx-ref" class="input-field" placeholder="โปรเจกต์/ชื่อผู้เบิก">
+    <button class="btn-primary" onclick="submitTx()">ยืนยัน</button>
+    <button onclick="closeModals()" style="background:none; border:none; color:var(--muted); width:100%; margin-top:10px; cursor:pointer;">ยกเลิก</button>
   </div>
 </div>
 
 <script>
-// ข้อมูล Master Data (ที่คัดมาให้ครบถ้วน)
-const MASTER_DATA = [
+const ADMIN_PASS = "admin123";
+let items = JSON.parse(localStorage.getItem('at_items')) || [
   {"id":"BNL6","description":"สต๊อปเปอร์เทอร์มินอล IDEC BNL6","minStock":10,"currentStock":20},
-  {"id":"DB-C8-J10-F11R","description":"ปลั๊ก DB-C8-J10-F11R","minStock":2,"currentStock":3},
-  {"id":"พัดลม5V","description":"พัดลม DC-Brushless 5V-DC","minStock":2,"currentStock":4},
   {"id":"YW1P-1UQ4G","description":"IDEC PILOTLIGHT 24VDC GREEN","minStock":10,"currentStock":5},
-  {"id":"YW1B-M1E01R","description":"PUSHBUTTON SWITCH RED","minStock":10,"currentStock":3},
-  {"id":"S8FS-C05024","description":"Power Supply 24VDC 50W","minStock":2,"currentStock":1},
-  {"id":"PYFZ-08-E","description":"Socket Relay PYFZ-08-E","minStock":10,"currentStock":0},
-  {"id":"MY2N","description":"Relay MY2N 24VDC","minStock":10,"currentStock":10},
-  {"id":"QPU6","description":"ข้อต่อตรง QPU 6","minStock":20,"currentStock":30},
-  {"id":"QJSC8-1/8","description":"ข้อต่อปรับลม 8-1/8","minStock":20,"currentStock":4},
-  {"id":"หัวจมM3x10","description":"สกรูหัวจม M3x10 mm.","minStock":20,"currentStock":0},
-  {"id":"น็อตM6","description":"น็อต M6","minStock":20,"currentStock":16},
-  {"id":"เคเบิ้นไทร์4","description":"เคเบิ้นไทร์ 4 นิ้ว (ถุง)","minStock":5,"currentStock":0},
-  {"id":"เทปพันสายไฟ","description":"เทปพันสายไฟ 3M","minStock":5,"currentStock":2}
+  {"id":"S8FS-C05024","description":"Power Supply 24VDC 50W","minStock":2,"currentStock":1}
 ];
+let transactions = JSON.parse(localStorage.getItem('at_tx')) || [];
+let currentTxMode = 'IN';
 
-let items = JSON.parse(localStorage.getItem('at_items')) || MASTER_DATA;
-let txs = JSON.parse(localStorage.getItem('at_tx')) || [];
-let currentMode = 'IN';
+function doLogin() {
+  if(document.getElementById('pass-input').value === ADMIN_PASS) {
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    render();
+  } else { alert("รหัสผ่านผิด!"); }
+}
 
 function render() {
   const q = document.getElementById('search').value.toLowerCase();
   const body = document.getElementById('stock-body');
-  let lowCount = 0;
-
-  body.innerHTML = items.filter(i => i.id.toLowerCase().includes(q) || i.description.toLowerCase().includes(q))
-    .map(i => {
-      const isLow = i.currentStock <= i.minStock;
-      if(isLow) lowCount++;
-      return `<tr>
-        <td class="mono"><b>${i.id}</b></td>
-        <td style="color:var(--muted)">${i.description}</td>
-        <td class="mono" style="font-weight:700; color:${isLow?'var(--yellow)':'var(--green)'}">${i.currentStock}</td>
-        <td class="mono">${i.minStock}</td>
-        <td><span class="badge ${isLow?'badge-low':'badge-ok'}">${isLow?'ORDER':'OK'}</span></td>
-        <td>
-          <button onclick="openTx('IN','${i.id}')" style="color:var(--green); background:none; border:none; cursor:pointer;">รับ</button> |
-          <button onclick="openTx('OUT','${i.id}')" style="color:var(--red); background:none; border:none; cursor:pointer;">เบิก</button>
-        </td>
-      </tr>`;
-    }).join('');
-
-  document.getElementById('stat-total').innerText = items.length;
-  document.getElementById('stat-low').innerText = lowCount;
   
-  document.getElementById('tx-body').innerHTML = txs.map(t => `
-    <tr><td style="font-size:11px;">${t.time}</td><td>${t.type==='IN'?'📥':'📤'}</td><td class="mono">${t.id}</td><td class="mono">${t.qty}</td><td>${t.ref}</td></tr>
+  body.innerHTML = items.filter(i => i.id.toLowerCase().includes(q) || i.description.toLowerCase().includes(q)).map(i => {
+    const isLow = i.currentStock <= i.minStock;
+    return `<tr>
+      <td class="mono"><b>${i.id}</b></td>
+      <td>${i.description}</td>
+      <td class="mono" style="font-weight:700; color:${isLow?'var(--yellow)':'inherit'}">${i.currentStock}</td>
+      <td class="mono">${i.minStock}</td>
+      <td><span class="badge ${isLow?'badge-low':''}">${isLow?'⚠️ ORDER':'✅ OK'}</span></td>
+      <td>
+        <button onclick="openTx('IN','${i.id}')" style="color:var(--green); background:none; border:none; cursor:pointer;">รับ</button> |
+        <button onclick="openTx('OUT','${i.id}')" style="color:var(--red); background:none; border:none; cursor:pointer;">เบิก</button> |
+        <button class="btn-edit-tool" onclick="openEdit('${i.id}')">⚙️</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tx-body').innerHTML = transactions.map(t => `
+    <tr><td>${t.time}</td><td class="mono">${t.type==='IN'?'📥':'📤'} ${t.id}</td><td class="mono">${t.qty}</td><td>${t.ref}</td></tr>
   `).join('');
 
   localStorage.setItem('at_items', JSON.stringify(items));
-  localStorage.setItem('at_tx', JSON.stringify(txs));
+  localStorage.setItem('at_tx', JSON.stringify(transactions));
 }
 
-function openTx(m, id) {
-  currentMode = m;
-  document.getElementById('tx-id').value = id;
-  document.getElementById('tx-title').innerText = m === 'IN' ? '📥 รับอะไหล่เข้าคลัง' : '📤 เบิกอะไหล่ออก';
+function openEdit(id) {
+  const item = items.find(i => i.id === id);
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-name').value = item.description;
+  document.getElementById('edit-min').value = item.minStock;
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function saveEdit() {
+  const id = document.getElementById('edit-id').value;
+  const item = items.find(i => i.id === id);
+  item.description = document.getElementById('edit-name').value;
+  item.minStock = parseInt(document.getElementById('edit-min').value);
+  closeModals(); render();
+}
+
+function openTx(mode, id) {
+  currentTxMode = mode;
+  document.getElementById('tx-target-id').value = id;
+  document.getElementById('tx-title').innerText = mode === 'IN' ? '📥 รับเข้าคลัง' : '📤 เบิกออก';
   document.getElementById('tx-modal').style.display = 'flex';
 }
 
-function confirmTx() {
-  const id = document.getElementById('tx-id').value;
+function submitTx() {
+  const id = document.getElementById('tx-target-id').value;
   const qty = parseInt(document.getElementById('tx-qty').value);
-  const ref = document.getElementById('tx-ref').value || '-';
   const item = items.find(i => i.id === id);
-
-  if (currentMode === 'OUT' && item.currentStock < qty) {
-    alert('❌ สินค้าในสต็อกไม่พอเบิก!'); return;
-  }
-
-  item.currentStock += (currentMode === 'IN' ? qty : -qty);
-  txs.unshift({ time: new Date().toLocaleString('th-TH'), type: currentMode, id, qty, ref });
-  
-  closeModal();
-  render();
+  if(currentTxMode === 'OUT' && item.currentStock < qty) return alert("สต็อกไม่พอ!");
+  item.currentStock += (currentTxMode === 'IN' ? qty : -qty);
+  transactions.unshift({ time: new Date().toLocaleString('th-TH'), type: currentTxMode, id, qty, ref: document.getElementById('tx-ref').value || '-' });
+  closeModals(); render();
 }
 
 function switchTab(t) {
   document.getElementById('tab-stock').style.display = t === 'stock' ? 'block' : 'none';
   document.getElementById('tab-tx').style.display = t === 'tx' ? 'block' : 'none';
-  document.getElementById('b-stock').className = `tab-btn ${t==='stock'?'active':''}`;
-  document.getElementById('b-tx').className = `tab-btn ${t==='tx'?'active':''}`;
+  document.getElementById('ts').className = `tab-btn ${t==='stock'?'active':''}`;
+  document.getElementById('tt').className = `tab-btn ${t==='tx'?'active':''}`;
 }
 
-function resetSystem() {
-  if(confirm("⚠️ คุณต้องการล้างข้อมูลการเบิกจ่ายและรีเซ็ตสต็อกทั้งหมดใช่หรือไม่?")) {
-    localStorage.clear();
-    items = [...MASTER_DATA];
-    txs = [];
-    render();
-    alert("ระบบถูกรีเซ็ตแล้ว");
-  }
-}
-
-function closeModal() { document.getElementById('tx-modal').style.display = 'none'; }
-
-render(); // Initial Load
+function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
 </script>
 </body>
 </html>

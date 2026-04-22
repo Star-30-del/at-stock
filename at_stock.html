@@ -3,207 +3,575 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AT Stock — ระบบจัดการสต็อก</title>
+<title>AT Stock — ระบบจัดการสต็อกอะไหล่</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #0b1120; --surface: #111827; --surface2: #1a2436;
-    --border: #1e2d45; --border2: #253654; --text: #e2e8f0;
-    --muted: #64748b; --blue: #3b82f6; --cyan: #06b6d4;
-    --green: #10b981; --yellow: #f59e0b; --red: #ef4444;
+    --border: #1e2d45; --border2: #253654; --text: #e2e8f0; --muted: #64748b;
+    --blue: #3b82f6; --cyan: #06b6d4; --green: #10b981;
+    --yellow: #f59e0b; --red: #ef4444;
   }
+  html { scroll-behavior: smooth; }
   body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  
-  /* LOGIN SCREEN */
-  #login-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-  .login-box { background: var(--surface); padding: 40px; border-radius: 20px; border: 1px solid var(--border); width: 350px; text-align: center; }
-  
-  /* LAYOUT */
-  #app-content { display: none; }
-  #header { position: sticky; top: 0; z-index: 100; background: rgba(11,17,32,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 28px; }
-  .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 62px; }
-  .tab-btn { padding: 8px 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; font-weight: 600; }
-  .tab-btn.active { background: var(--blue); color: #fff; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  input, select, button { font-family: 'Sarabun', sans-serif; }
 
-  /* COMPONENTS */
-  .main { max-width: 1440px; margin: 0 auto; padding: 20px 28px; }
-  .table-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; min-width: 850px; }
-  th { padding: 12px 16px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; background: rgba(0,0,0,0.2); }
-  td { padding: 12px 16px; font-size: 13px; border-top: 1px solid var(--border); }
+  /* ===== LOGIN ===== */
+  #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+  #login-screen.hidden { display: none; }
+  .login-box { background: var(--surface2); border: 1px solid var(--border2); border-radius: 24px; padding: 48px 44px; width: 380px; max-width: 92vw; box-shadow: 0 32px 80px rgba(0,0,0,.65); text-align: center; animation: slideUp .35s ease; }
+  .login-logo { width: 72px; height: 72px; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 34px; margin: 0 auto 20px; box-shadow: 0 8px 28px #3b82f640; }
+  .login-title { font-size: 26px; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 36px; }
+  .pin-dots { display: flex; gap: 12px; justify-content: center; margin-bottom: 22px; }
+  .pin-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--border2); background: transparent; transition: all .15s; }
+  .pin-dot.filled { background: var(--blue); border-color: var(--blue); box-shadow: 0 0 10px #3b82f660; }
+  .login-label { font-size: 12px; color: var(--muted); font-weight: 600; text-align: left; display: block; margin-bottom: 7px; text-transform: uppercase; letter-spacing: .5px; }
+  .login-input-wrap { position: relative; margin-bottom: 20px; }
+  .login-input { width: 100%; background: var(--bg); border: 1.5px solid var(--border2); border-radius: 12px; padding: 13px 48px 13px 16px; color: var(--text); font-size: 22px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 12px; outline: none; text-align: center; transition: border-color .2s, box-shadow .2s; }
+  .login-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #3b82f625; }
+  .login-input.shake { animation: shake .4s ease; border-color: var(--red); }
+  .login-eye { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; padding: 4px; }
+  .login-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--blue), var(--cyan)); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity .2s, transform .1s; }
+  .login-btn:hover { opacity: .88; }
+  .login-btn:active { transform: scale(.98); }
+  .login-error { color: #f87171; font-size: 13px; font-weight: 600; margin-top: 14px; height: 18px; }
+  .login-attempts { color: var(--muted); font-size: 12px; margin-top: 6px; height: 16px; }
+
+  /* ===== APP ===== */
+  #app-screen { display: none; }
+  #app-screen.show { display: block; }
+
+  /* HEADER */
+  #header { position: sticky; top: 0; z-index: 100; background: rgba(11,17,32,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 28px; }
+  .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 62px; gap: 16px; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+  .logo-title { font-weight: 800; font-size: 17px; color: #f1f5f9; }
+  .logo-sub { font-size: 11px; color: var(--muted); }
+  .tabs { display: flex; gap: 4px; }
+  .tab-btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .2s; background: transparent; color: var(--muted); white-space: nowrap; }
+  .tab-btn.active { background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #fff; }
+  .tab-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
+  .header-right { display: flex; gap: 8px; align-items: center; }
+  .btn-new { background: linear-gradient(135deg, var(--blue), var(--cyan)); border: none; border-radius: 10px; padding: 10px 18px; color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; transition: opacity .2s; }
+  .btn-new:hover { opacity: .85; }
+  .btn-logout { background: transparent; border: 1px solid var(--border2); border-radius: 10px; padding: 9px 13px; color: var(--muted); font-size: 13px; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .btn-logout:hover { border-color: var(--red); color: #f87171; }
+
+  /* MAIN */
+  .main { max-width: 1440px; margin: 0 auto; padding: 24px 28px; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border-radius: 14px; padding: 20px 22px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+  .stat-icon { position: absolute; right: 16px; top: 14px; font-size: 30px; opacity: .2; }
+  .stat-val { font-size: 36px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+  .search-box { flex: 1; min-width: 220px; background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 16px; color: var(--text); font-size: 14px; outline: none; transition: border-color .2s; }
+  .search-box:focus { border-color: var(--blue); }
+  .filter-select { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; cursor: pointer; }
+  .count-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+  /* TABLE */
+  .table-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--bg); }
+  th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; white-space: nowrap; }
+  tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
+  tbody tr:hover { background: rgba(255,255,255,.05); }
+  td { padding: 11px 16px; font-size: 13px; vertical-align: middle; }
   .mono { font-family: 'IBM Plex Mono', monospace; }
-  .input-field { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; padding: 10px; color: #fff; outline: none; margin-bottom: 15px; }
-  
+  .empty-row { padding: 60px; text-align: center; color: var(--muted); font-size: 14px; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-cat-E { background: #eff6ff18; color: #60a5fa; border: 1px solid #3b82f644; }
+  .badge-cat-P { background: #f0fdf418; color: #34d399; border: 1px solid #10b98144; }
+  .badge-cat-M { background: #fffbeb18; color: #fbbf24; border: 1px solid #f59e0b44; }
+  .badge-cat-C { background: #f5f3ff18; color: #a78bfa; border: 1px solid #8b5cf644; }
+  .badge-in  { background: #10b98118; color: #10b981; border: 1px solid #10b98140; }
+  .badge-out { background: #ef444418; color: #f87171; border: 1px solid #ef444440; }
+
+  /* STOCK BAR */
+  .stock-cell { display: flex; align-items: center; gap: 10px; }
+  .bar-wrap { width: 56px; height: 5px; background: var(--border2); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+
+  /* BUTTONS */
+  .act-btns { display: flex; gap: 5px; }
+  .btn-in  { background: #10b98118; border: 1px solid #10b98144; color: #10b981; padding: 5px 9px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: 700; transition: all .15s; }
+  .btn-out { background: #ef444418; border: 1px solid #ef444444; color: #f87171; padding: 5px 9px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: 700; transition: all .15s; }
+  .btn-edit-min { background: #f59e0b18; border: 1px solid #f59e0b44; color: #f59e0b; padding: 5px 9px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: 700; transition: all .15s; }
+  .btn-in:hover  { background: #10b98130; }
+  .btn-out:hover { background: #ef444430; }
+  .btn-edit-min:hover { background: #f59e0b30; }
+
   /* MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); display: none; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(4px); }
-  .modal { background: var(--surface2); padding: 25px; border-radius: 18px; width: 380px; border: 1px solid var(--border2); }
-  .btn-primary { background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; width: 100%; }
-  .btn-edit-tool { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; }
-  .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-  .badge-low { background: #f59e0b15; color: var(--yellow); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface2); border: 1px solid var(--border2); border-radius: 18px; padding: 32px; width: 440px; max-width: 94vw; box-shadow: 0 24px 80px rgba(0,0,0,.6); animation: slideUp .25s ease; }
+  .modal-sm { width: 380px; }
+  .modal-title { font-weight: 800; font-size: 18px; color: #f1f5f9; margin-bottom: 24px; }
+  .form-label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+  .form-group { margin-bottom: 18px; }
+  .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; transition: border-color .2s; }
+  .form-input:focus { border-color: var(--blue); }
+  .form-input.mono-inp { font-family: 'IBM Plex Mono', monospace; }
+  .type-btns { display: flex; gap: 8px; }
+  .type-btn { flex: 1; padding: 11px; border-radius: 10px; border: 2px solid var(--border2); background: transparent; color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; }
+  .type-btn.active-in  { border-color: var(--green); background: #10b98120; color: var(--green); }
+  .type-btn.active-out { border-color: var(--red); background: #ef444420; color: #f87171; }
+  .item-hint { font-size: 12px; color: var(--muted); margin-top: 6px; min-height: 18px; }
+  .modal-footer { display: flex; gap: 10px; margin-top: 8px; }
+  .btn-cancel { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border2); background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-cancel:hover { background: var(--surface); color: var(--text); }
+  .btn-submit { flex: 2; padding: 12px; border-radius: 10px; border: none; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+  .btn-submit.in  { background: linear-gradient(135deg, #10b981, #059669); }
+  .btn-submit.out { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .btn-submit.ylw { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .btn-submit:hover { opacity: .88; }
+
+  /* EDIT INFO BOX */
+  .edit-info { background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+  .edit-info-id { font-family: 'IBM Plex Mono', monospace; color: #93c5fd; font-size: 14px; font-weight: 600; }
+  .edit-info-desc { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .edit-info-row { display: flex; gap: 24px; margin-top: 10px; flex-wrap: wrap; }
+  .edit-info-stat { font-size: 12px; color: var(--muted); }
+  .edit-info-stat b { font-family: 'IBM Plex Mono', monospace; font-size: 15px; }
+
+  /* NOTIF */
+  #notif { position: fixed; top: 20px; right: 20px; z-index: 9990; padding: 12px 22px; border-radius: 10px; color: #fff; font-weight: 700; font-size: 14px; box-shadow: 0 8px 32px rgba(0,0,0,.4); display: none; animation: fadeIn .3s ease; pointer-events: none; }
+
+  /* TABS */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .order-header { color: var(--yellow); font-weight: 700; font-size: 15px; margin-bottom: 16px; }
+
+  @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn  { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes shake   { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+
+  @media (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .tabs { display: none; }
+    .mobile-tabs { display: flex; gap: 4px; overflow-x: auto; margin-bottom: 16px; }
+    .header-inner { flex-wrap: wrap; height: auto; padding: 12px 0; }
+  }
+  @media (min-width: 769px) { .mobile-tabs { display: none; } }
 </style>
 </head>
 <body>
 
-<div id="login-overlay">
+<div id="notif"></div>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-screen">
   <div class="login-box">
-    <div style="font-size: 40px; margin-bottom: 10px;">🛡️</div>
-    <h2 style="margin-bottom: 20px;">AT Stock Login</h2>
-    <input type="password" id="pass-input" class="input-field" placeholder="ใส่รหัสผ่าน...">
-    <button class="btn-primary" onclick="doLogin()">เข้าสู่ระบบ</button>
-    <p style="font-size: 11px; color: var(--muted); margin-top: 15px;">Default Pass: admin123</p>
+    <div class="login-logo">📦</div>
+    <div class="login-title">AT Stock</div>
+    <div class="login-sub">กรุณาใส่รหัสผ่านเพื่อเข้าสู่ระบบ</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <label class="login-label">รหัสผ่าน</label>
+    <div class="login-input-wrap">
+      <input type="password" id="login-input" class="login-input" maxlength="30"
+        placeholder="••••" oninput="onPinInput()" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="login-eye" onclick="togglePw()" tabindex="-1">👁</button>
+    </div>
+    <button class="login-btn" onclick="doLogin()">🔓 เข้าสู่ระบบ</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-attempts" id="login-attempts"></div>
   </div>
 </div>
 
-<div id="app-content">
+<!-- ===== APP ===== -->
+<div id="app-screen">
   <div id="header">
     <div class="header-inner">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div style="width:35px; height:35px; background:var(--blue); border-radius:8px; display:flex; align-items:center; justify-content:center;">📦</div>
-        <span style="font-weight:800;">AT STOCK</span>
+      <div class="logo">
+        <div class="logo-icon">📦</div>
+        <div><div class="logo-title">AT Stock</div><div class="logo-sub">ระบบจัดการสต็อกอะไหล่</div></div>
       </div>
       <div class="tabs">
-        <button class="tab-btn active" id="ts" onclick="switchTab('stock')">คลังอะไหล่</button>
-        <button class="tab-btn" id="tt" onclick="switchTab('tx')">ประวัติรายการ</button>
+        <button class="tab-btn active" onclick="switchTab('stock')">📋 สต็อก</button>
+        <button class="tab-btn" onclick="switchTab('transactions')">🔄 รายการเคลื่อนไหว</button>
+        <button class="tab-btn" onclick="switchTab('orders')">⚠️ รายการสั่งซื้อ</button>
       </div>
-      <button onclick="location.reload()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:12px;">ออกจากระบบ</button>
+      <div class="header-right">
+        <button class="btn-new" onclick="openModal()">+ บันทึกรายการ</button>
+        <button class="btn-logout" onclick="doLogout()">🔒 ออกจากระบบ</button>
+      </div>
     </div>
   </div>
 
   <div class="main">
-    <div id="tab-stock">
-      <input type="text" id="search" class="input-field" placeholder="🔍 ค้นหารหัส หรือ รายการ..." oninput="render()">
-      <div class="table-wrap">
+    <div class="mobile-tabs">
+      <button class="tab-btn active" onclick="switchTab('stock')">📋 สต็อก</button>
+      <button class="tab-btn" onclick="switchTab('transactions')">🔄 เคลื่อนไหว</button>
+      <button class="tab-btn" onclick="switchTab('orders')">⚠️ สั่งซื้อ</button>
+    </div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <!-- STOCK TAB -->
+    <div id="tab-stock" class="tab-content active">
+      <div class="filters">
+        <input class="search-box" id="search" placeholder="🔍 ค้นหารหัส / ชื่ออะไหล่..." oninput="renderStock()">
+        <select class="filter-select" id="cat-filter" onchange="renderStock()">
+          <option value="all">ทุกหมวดหมู่</option>
+          <option value="Electrical">ไฟฟ้า</option>
+          <option value="Pneumatic">นิวแมติก</option>
+          <option value="Mechanical">เครื่องกล</option>
+          <option value="Consumables">วัสดุสิ้นเปลือง</option>
+        </select>
+        <select class="filter-select" id="status-filter" onchange="renderStock()">
+          <option value="all">ทุกสถานะ</option>
+          <option value="ok">ปกติ</option>
+          <option value="low">ต้องสั่งเพิ่ม</option>
+        </select>
+        <span class="count-label" id="count-label"></span>
+      </div>
+      <div class="table-wrap"><div class="table-scroll">
         <table>
-          <thead>
-            <tr><th>รหัสอะไหล่</th><th>ชื่อรายการ</th><th>คงเหลือ</th><th>จุดสั่งซื้อ</th><th>สถานะ</th><th>จัดการ</th></tr>
-          </thead>
+          <thead><tr>
+            <th>รหัสอะไหล่</th><th>รายการ</th><th>หมวดหมู่</th>
+            <th>จุดสั่งซื้อ</th><th>คงเหลือ</th><th>หน่วย</th><th>สถานะ</th><th>ดำเนินการ</th>
+          </tr></thead>
           <tbody id="stock-body"></tbody>
         </table>
+      </div></div>
+    </div>
+
+    <!-- TRANSACTIONS TAB -->
+    <div id="tab-transactions" class="tab-content">
+      <div class="filters">
+        <input class="search-box" id="tx-search" placeholder="🔍 ค้นหารหัสอะไหล่ / อ้างอิง..." oninput="renderTx()">
+      </div>
+      <div class="table-wrap"><div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>วันที่</th><th>ประเภท</th><th>รหัสอะไหล่</th><th>รายการ</th><th>จำนวน</th><th>อ้างอิง</th>
+          </tr></thead>
+          <tbody id="tx-body"></tbody>
+        </table>
+      </div></div>
+    </div>
+
+    <!-- ORDERS TAB -->
+    <div id="tab-orders" class="tab-content">
+      <div class="order-header" id="order-header"></div>
+      <div class="table-wrap"><div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>รหัสอะไหล่</th><th>รายการ</th><th>หมวดหมู่</th>
+            <th>จุดสั่งซื้อ</th><th>คงเหลือ</th><th>ต้องสั่งเพิ่ม</th><th>หน่วย</th>
+          </tr></thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TX MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">📝 บันทึกรายการเคลื่อนไหว</div>
+    <div class="form-group">
+      <label class="form-label">ประเภทการดำเนินการ</label>
+      <div class="type-btns">
+        <button class="type-btn active-in" id="btn-type-in" onclick="setType('IN')">▼ รับเข้า</button>
+        <button class="type-btn" id="btn-type-out" onclick="setType('OUT')">▲ เบิกออก</button>
       </div>
     </div>
-
-    <div id="tab-tx" style="display:none;">
-      <h3>🔄 ประวัติเบิก/รับ</h3><br>
-      <div class="table-wrap"><table id="tx-table"><thead><tr><th>วัน/เวลา</th><th>รหัส</th><th>จำนวน</th><th>อ้างอิง</th></tr></thead><tbody id="tx-body"></tbody></table></div>
+    <div class="form-group">
+      <label class="form-label">รหัสอะไหล่ *</label>
+      <input class="form-input mono-inp" id="modal-itemid" placeholder="เช่น BNL6, YW1P-1UQ4G" oninput="updateHint()" list="item-datalist">
+      <datalist id="item-datalist"></datalist>
+      <div class="item-hint" id="item-hint"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">จำนวน *</label>
+      <input class="form-input mono-inp" id="modal-qty" type="number" min="1" placeholder="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">อ้างอิง / โปรเจกต์ (ถ้ามี)</label>
+      <input class="form-input" id="modal-ref" placeholder="ชื่อโปรเจกต์หรือผู้เบิก">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-submit in" id="btn-submit" onclick="submitTx()">ยืนยันรับเข้า</button>
     </div>
   </div>
 </div>
 
-<div id="edit-modal" class="modal-overlay">
-  <div class="modal">
-    <h3 style="margin-bottom:20px;">⚙️ แก้ไขจุดสั่งซื้อ</h3>
-    <input type="hidden" id="edit-id">
-    <label style="font-size:12px; color:var(--muted)">ชื่อรายการ</label>
-    <input type="text" id="edit-name" class="input-field">
-    <label style="font-size:12px; color:var(--muted)">จุดสั่งซื้อขั้นต่ำ (Min Stock)</label>
-    <input type="number" id="edit-min" class="input-field">
-    <button class="btn-primary" onclick="saveEdit()">บันทึกการแก้ไข</button>
-    <button onclick="closeModals()" style="background:none; border:none; color:var(--muted); width:100%; margin-top:10px; cursor:pointer;">ยกเลิก</button>
-  </div>
-</div>
-
-<div id="tx-modal" class="modal-overlay">
-  <div class="modal">
-    <h3 id="tx-title" style="margin-bottom:20px;">บันทึกรายการ</h3>
-    <input type="hidden" id="tx-target-id">
-    <label style="font-size:12px; color:var(--muted)">จำนวน</label>
-    <input type="number" id="tx-qty" class="input-field" value="1">
-    <label style="font-size:12px; color:var(--muted)">อ้างอิง</label>
-    <input type="text" id="tx-ref" class="input-field" placeholder="โปรเจกต์/ชื่อผู้เบิก">
-    <button class="btn-primary" onclick="submitTx()">ยืนยัน</button>
-    <button onclick="closeModals()" style="background:none; border:none; color:var(--muted); width:100%; margin-top:10px; cursor:pointer;">ยกเลิก</button>
+<!-- EDIT MIN STOCK MODAL -->
+<div class="modal-overlay" id="edit-overlay" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal modal-sm">
+    <div class="modal-title">✏️ แก้ไขจุดสั่งซื้อ</div>
+    <div class="edit-info" id="edit-info"></div>
+    <div class="form-group">
+      <label class="form-label">จุดสั่งซื้อใหม่ (Min Stock)</label>
+      <input class="form-input mono-inp" id="edit-min" type="number" min="0" placeholder="0"
+        style="font-size:22px;text-align:center;letter-spacing:2px">
+      <div style="font-size:12px;color:var(--muted);margin-top:7px;text-align:center">ระบบจะแจ้งเตือนเมื่อสต็อกน้อยกว่าค่านี้</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEditModal()">ยกเลิก</button>
+      <button class="btn-submit ylw" onclick="submitEditMin()">💾 บันทึก</button>
+    </div>
   </div>
 </div>
 
 <script>
-const ADMIN_PASS = "admin123";
-let items = JSON.parse(localStorage.getItem('at_items')) || [
-  {"id":"BNL6","description":"สต๊อปเปอร์เทอร์มินอล IDEC BNL6","minStock":10,"currentStock":20},
-  {"id":"YW1P-1UQ4G","description":"IDEC PILOTLIGHT 24VDC GREEN","minStock":10,"currentStock":5},
-  {"id":"S8FS-C05024","description":"Power Supply 24VDC 50W","minStock":2,"currentStock":1}
-];
-let transactions = JSON.parse(localStorage.getItem('at_tx')) || [];
-let currentTxMode = 'IN';
+// ===== AUTH =====
+const PW = '1234';
+let attempts = 0;
 
-function doLogin() {
-  if(document.getElementById('pass-input').value === ADMIN_PASS) {
-    document.getElementById('login-overlay').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
-    render();
-  } else { alert("รหัสผ่านผิด!"); }
+function onPinInput(){
+  const v = document.getElementById('login-input').value;
+  for(let i=0;i<4;i++){ const d=document.getElementById('d'+i); if(d) d.classList.toggle('filled', i < v.length); }
+  document.getElementById('login-error').textContent='';
+}
+function togglePw(){
+  const i=document.getElementById('login-input');
+  i.type=i.type==='password'?'text':'password';
+}
+function doLogin(){
+  const v=document.getElementById('login-input').value;
+  if(v===PW){
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-screen').classList.add('show');
+    attempts=0;
+  } else {
+    attempts++;
+    const inp=document.getElementById('login-input');
+    inp.classList.add('shake'); setTimeout(()=>inp.classList.remove('shake'),420);
+    inp.value=''; for(let i=0;i<4;i++){const d=document.getElementById('d'+i);if(d)d.classList.remove('filled');}
+    document.getElementById('login-error').textContent='❌ รหัสผ่านไม่ถูกต้อง';
+    document.getElementById('login-attempts').textContent = attempts>1 ? `ลองผิดแล้ว ${attempts} ครั้ง` : '';
+    inp.focus();
+  }
+}
+function doLogout(){
+  if(!confirm('ต้องการออกจากระบบหรือไม่?')) return;
+  document.getElementById('app-screen').classList.remove('show');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-input').value='';
+  for(let i=0;i<4;i++){const d=document.getElementById('d'+i);if(d)d.classList.remove('filled');}
+  document.getElementById('login-error').textContent='';
+  document.getElementById('login-attempts').textContent='';
+  attempts=0;
+  setTimeout(()=>document.getElementById('login-input').focus(),80);
 }
 
-function render() {
-  const q = document.getElementById('search').value.toLowerCase();
-  const body = document.getElementById('stock-body');
-  
-  body.innerHTML = items.filter(i => i.id.toLowerCase().includes(q) || i.description.toLowerCase().includes(q)).map(i => {
-    const isLow = i.currentStock <= i.minStock;
+// ===== DATA =====
+const CAT_TH={Electrical:'ไฟฟ้า',Pneumatic:'นิวแมติก',Mechanical:'เครื่องกล',Consumables:'วัสดุสิ้นเปลือง'};
+const CAT_CLS={Electrical:'badge-cat-E',Pneumatic:'badge-cat-P',Mechanical:'badge-cat-M',Consumables:'badge-cat-C'};
+
+let items=[{"id":"BNL6","description":"สต๊อปเปอร์เทอร์มินอล IDEC BNL6","category":"Electrical","minStock":10,"currentStock":20,"unit":"ตัว"},{"id":"DB-C8-J10-F11R","description":"ปลั๊ก DB-C8-J10-F11R","category":"Electrical","minStock":2,"currentStock":3,"unit":"ตัว"},{"id":"พัดลม5V","description":"พัดลม DC-Brushless 5V-DC","category":"Electrical","minStock":2,"currentStock":4,"unit":"ตัว"},{"id":"พัดลม220V80x80x25","description":"พัดลมระบายอากาศ 220/240VAC 80x80x25mm.","category":"Electrical","minStock":2,"currentStock":4,"unit":"ตัว"},{"id":"1.5-3S","description":"หางปลาเปลือย 1.5-3S","category":"Electrical","minStock":200,"currentStock":500,"unit":"ตัว"},{"id":"2.5-4S","description":"หางปลาเปลือย 2.5-4S","category":"Electrical","minStock":200,"currentStock":200,"unit":"ตัว"},{"id":"YW1P-1UQM3G","description":"IDEC PILOTLIGHT YW1P-1UQM3G 220VAC","category":"Electrical","minStock":5,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4G","description":"IDEC PILOTLIGHT YW1P-1UQ4G 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4PW","description":"IDEC PILOTLIGHT YW1P-1UQ4PW 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1P-1UQ4R","description":"IDEC PILOTLIGHT YW1P-1UQ4R 24VDC","category":"Electrical","minStock":10,"currentStock":5,"unit":"ตัว"},{"id":"YW1B-A1E10G","description":"IDEC PUSHBUTTON SWITCH YW1B-A1E10G","category":"Electrical","minStock":10,"currentStock":10,"unit":"ตัว"},{"id":"YW1B-M1E01R","description":"IDEC PUSHBUTTON SWITCH YW1B-M1E01R","category":"Electrical","minStock":10,"currentStock":3,"unit":"ตัว"},{"id":"YW1L-M2E11Q4Y","description":"IDEC PUSHBUTTON SWITCH YW1L-M2E11Q4Y","category":"Electrical","minStock":10,"currentStock":1,"unit":"ตัว"},{"id":"YW1S-2E10","description":"IDEC SELECTOR SWITCH YW1S-2E10","category":"Electrical","minStock":10,"currentStock":2,"unit":"ตัว"},{"id":"YW1S-2E20","description":"IDEC SELECTOR SWITCH YW1S-2E20","category":"Electrical","minStock":10,"currentStock":2,"unit":"ตัว"},{"id":"H05VK 1x0.75","description":"สายคอนโทรล H05VK 1x0.75 SQ.MM.(YELLOW)","category":"Electrical","minStock":100,"currentStock":50,"unit":"เมตร"},{"id":"H05VK 1x0.50","description":"สายคอนโทรล H05VK 1x0.50 SQ.MM.(BLUE)","category":"Electrical","minStock":100,"currentStock":250,"unit":"เมตร"},{"id":"FX3G-40M","description":"PLC FX3G-40M","category":"Electrical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"FX3G-60M","description":"PLC FX3G-60M","category":"Electrical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"S8FS-C03524","description":"Power Supply S8FS-C03524","category":"Electrical","minStock":2,"currentStock":2,"unit":"ตัว"},{"id":"S8FS-C05024","description":"Power Supply S8FS-C05024","category":"Electrical","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"PYFZ-08-E","description":"Socket Relay PYFZ-08-E","category":"Electrical","minStock":10,"currentStock":0,"unit":"ตัว"},{"id":"MY2N","description":"Relay MY2N 24VDC","category":"Electrical","minStock":10,"currentStock":10,"unit":"ตัว"},{"id":"H3Y-2","description":"Relay Timer H3Y-2 24VDC","category":"Electrical","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"ER17/50","description":"Batt. maxell ER17/50 3.6v","category":"Electrical","minStock":10,"currentStock":10,"unit":"ก้อน"},{"id":"CR14250SE","description":"Batt. FDK CR14250SE 3V","category":"Electrical","minStock":10,"currentStock":0,"unit":"ก้อน"},{"id":"D-P3DWA","description":"Reed Switch SMC D-P3DWA","category":"Electrical","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"DPSP1","description":"Sensor AirTAC DPSP1-10020","category":"Electrical","minStock":5,"currentStock":0,"unit":"ตัว"},{"id":"QPU4","description":"ข้อต่อตรง QPU 4","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"QPU6","description":"ข้อต่อตรง QPU 6","category":"Pneumatic","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"QPU8","description":"ข้อต่อตรง QPU 8","category":"Pneumatic","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"QPU6-4","description":"ข้อต่อตรง QPU 6-4","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QPU8-6","description":"ข้อต่อตรง QPU 8-6","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPE6","description":"ข้อต่อสามทาง QPE 6","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPE8","description":"ข้อต่อสามทาง QPE 8","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPE6-4","description":"ข้อต่อสามทาง QPE 6-4","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPE8-6","description":"ข้อต่อสามทาง QPE 8-6","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QPE10-8","description":"ข้อต่อสามทาง QPE 10-8","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QJSC4-M5","description":"ข้อต่อปรับลม QJSC 4-M5","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QJSC6-M5","description":"ข้อต่อปรับลม QJSC 6-M5","category":"Pneumatic","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"QJSC8-1/8","description":"ข้อต่อปรับลม QJSC 8-1/8","category":"Pneumatic","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"QJSC8-1/4","description":"ข้อต่อปรับลม QJSC 8-1/4","category":"Pneumatic","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"QPL6-1/8","description":"ข้อต่อ 90 QPL 6-1/8","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPL6-1/4","description":"ข้อต่อ 90 QPL 6-1/4","category":"Pneumatic","minStock":20,"currentStock":23,"unit":"ตัว"},{"id":"QPL6-3/8","description":"ข้อต่อ 90 QPL 6-3/8","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPL6-1/2","description":"ข้อต่อ 90 QPL 6-1/2","category":"Pneumatic","minStock":20,"currentStock":1,"unit":"ตัว"},{"id":"QPL6-M5","description":"ข้อต่อ 90 QPL 6-M5","category":"Pneumatic","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"QPL8-1/8","description":"ข้อต่อ 90 QPL 8-1/8","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPL8-1/4","description":"ข้อต่อ 90 QPL 8-1/4","category":"Pneumatic","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"QPL8-3/8","description":"ข้อต่อ 90 QPL 8-3/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPL8-1/2","description":"ข้อต่อ 90 QPL 8-1/2","category":"Pneumatic","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"QPC4-M5","description":"ข้อต่อลม QPC 4-M5","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPC6-1/8","description":"ข้อต่อลม QPC 6-1/8","category":"Pneumatic","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"QPC6-1/4","description":"ข้อต่อลม QPC 6-1/4","category":"Pneumatic","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"QPC6-3/8","description":"ข้อต่อลม QPC 6-3/8","category":"Pneumatic","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"QPC6-1/2","description":"ข้อต่อลม QPC 6-1/2","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"QPC6-M5","description":"ข้อต่อลม QPC 6-M5","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPC8-1/8","description":"ข้อต่อลม QPC 8-1/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPC8-1/4","description":"ข้อต่อลม QPC 8-1/4","category":"Pneumatic","minStock":20,"currentStock":13,"unit":"ตัว"},{"id":"QPC8-3/8","description":"ข้อต่อลม QPC 8-3/8","category":"Pneumatic","minStock":20,"currentStock":21,"unit":"ตัว"},{"id":"QPC8-1/2","description":"ข้อต่อลม QPC 8-1/2","category":"Pneumatic","minStock":20,"currentStock":9,"unit":"ตัว"},{"id":"QPY4","description":"ข้อต่อลม QPY 4","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"QPY6","description":"ข้อต่อลม QPY 6","category":"Pneumatic","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"QPY8","description":"ข้อต่อลม QPY 8","category":"Pneumatic","minStock":20,"currentStock":22,"unit":"ตัว"},{"id":"QPY10","description":"ข้อต่อลม QPY 10","category":"Pneumatic","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"PSA6","description":"ข้อต่อลมแบบปรับได้ PSA 6","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"PSA8","description":"ข้อต่อลมแบบปรับได้ PSA 8","category":"Pneumatic","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"2V13010B","description":"Solenoid Valve 2V13010B","category":"Pneumatic","minStock":5,"currentStock":1,"unit":"ตัว"},{"id":"4V230C-08","description":"Solenoid Valve 4V230C-08","category":"Pneumatic","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"SY5220-5LZ-C4","description":"Solenoid Valve SY5220-5LZ-C4","category":"Pneumatic","minStock":5,"currentStock":2,"unit":"ตัว"},{"id":"SY5220-5LZ-C6","description":"Solenoid Valve SY5220-5LZ-C6","category":"Pneumatic","minStock":5,"currentStock":1,"unit":"ตัว"},{"id":"MHL2-10D1","description":"AIR GRIPPER MHL2-10D1 (SMC)","category":"Pneumatic","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"HFCI40","description":"AIR GRIPPER HFCI40 (AIRTEC)","category":"Pneumatic","minStock":2,"currentStock":1,"unit":"ตัว"},{"id":"MHS4-40D","description":"AIR GRIPPER MHS4-40D (SMC)","category":"Pneumatic","minStock":2,"currentStock":2,"unit":"ตัว"},{"id":"MHZL2-25D","description":"AIR GRIPPER MHZL2-25D (SMC)","category":"Pneumatic","minStock":2,"currentStock":3,"unit":"ตัว"},{"id":"สายลม6","description":"สายลม PU 6mm.","category":"Pneumatic","minStock":100,"currentStock":100,"unit":"เมตร"},{"id":"สายลม8","description":"สายลม PU 8mm.","category":"Pneumatic","minStock":100,"currentStock":100,"unit":"เมตร"},{"id":"หัวเตเปอร์M3x25","description":"สกรูหัวเตเปอร์ M3x25 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวเตเปอร์M5x10","description":"สกรูหัวเตเปอร์ M5x10 mm.","category":"Mechanical","minStock":20,"currentStock":12,"unit":"ตัว"},{"id":"หัวเตเปอร์M6x10","description":"สกรูหัวเตเปอร์ M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM3x10","description":"สกรูหัวจม M3x10 mm.","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"หัวจมM3x15","description":"สกรูหัวจม M3x15 mm.","category":"Mechanical","minStock":20,"currentStock":1,"unit":"ตัว"},{"id":"หัวจมM3x40","description":"สกรูหัวจม M3x40 mm.","category":"Mechanical","minStock":20,"currentStock":8,"unit":"ตัว"},{"id":"หัวจมM4x10","description":"สกรูหัวจม M4x10 mm.","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"หัวจมM4x15","description":"สกรูหัวจม M4x15 mm.","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"หัวจมM4x80","description":"สกรูหัวจม M4x80 mm.","category":"Mechanical","minStock":20,"currentStock":13,"unit":"ตัว"},{"id":"หัวจมM5x20","description":"สกรูหัวจม M5x20 mm.","category":"Mechanical","minStock":20,"currentStock":2,"unit":"ตัว"},{"id":"หัวจมM5x50","description":"สกรูหัวจม M5x50 mm.","category":"Mechanical","minStock":20,"currentStock":11,"unit":"ตัว"},{"id":"หัวจมM5x70","description":"สกรูหัวจม M5x70 mm.","category":"Mechanical","minStock":20,"currentStock":35,"unit":"ตัว"},{"id":"หัวจมM5x80","description":"สกรูหัวจม M5x80 mm.","category":"Mechanical","minStock":20,"currentStock":5,"unit":"ตัว"},{"id":"หัวจมM6x5","description":"สกรูหัวจม M6x5 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมM6x10","description":"สกรูหัวจม M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"หัวจมM6x15","description":"สกรูหัวจม M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":7,"unit":"ตัว"},{"id":"หัวจมM6x25","description":"สกรูหัวจม M6x25 mm.","category":"Mechanical","minStock":20,"currentStock":2,"unit":"ตัว"},{"id":"หัวจมM6x40","description":"สกรูหัวจม M6x40 mm.","category":"Mechanical","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"หัวจมM6x45","description":"สกรูหัวจม M6x45 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x15","description":"สกรูหัวจม M8x15 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x20","description":"สกรูหัวจม M8x20 mm.","category":"Mechanical","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"หัวจมM8x25","description":"สกรูหัวจม M8x25 mm.","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"หัวจมM8x30","description":"สกรูหัวจม M8x30 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมM8x40","description":"สกรูหัวจม M8x40 mm.","category":"Mechanical","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"หัวจมชุปM5x8","description":"สกรูหัวจมชุปซิง M5x8 mm.","category":"Mechanical","minStock":20,"currentStock":80,"unit":"ตัว"},{"id":"หัวจมชุปM5x12","description":"สกรูหัวจมชุปซิง M5x12 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมชุปM6x12","description":"สกรูหัวจมชุปซิง M6x12 mm.","category":"Mechanical","minStock":20,"currentStock":60,"unit":"ตัว"},{"id":"หัวจมชุปM6x15","description":"สกรูหัวจมชุปซิง M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM4x30","description":"สกรูหัวจมสแตนเลส M4x30 mm.","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x10","description":"สกรูหัวจมสแตนเลส M5x10 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x15","description":"สกรูหัวจมสแตนเลส M5x15 mm.","category":"Mechanical","minStock":20,"currentStock":16,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM5x25","description":"สกรูหัวจมสแตนเลส M5x25 mm.","category":"Mechanical","minStock":20,"currentStock":6,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM6x10","description":"สกรูหัวจมสแตนเลส M6x10 mm.","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"หัวจมสแตนเลสM6x15","description":"สกรูหัวจมสแตนเลส M6x15 mm.","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"น็อตM3","description":"น็อต M3","category":"Mechanical","minStock":20,"currentStock":15,"unit":"ตัว"},{"id":"น็อตM4","description":"น็อต M4","category":"Mechanical","minStock":20,"currentStock":25,"unit":"ตัว"},{"id":"น็อตM5","description":"น็อต M5","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"น็อตM6","description":"น็อต M6","category":"Mechanical","minStock":20,"currentStock":16,"unit":"ตัว"},{"id":"น็อตM8","description":"น็อต M8","category":"Mechanical","minStock":20,"currentStock":50,"unit":"ตัว"},{"id":"น็อตM10","description":"น็อต M10","category":"Mechanical","minStock":20,"currentStock":10,"unit":"ตัว"},{"id":"แหวนสปิงM3","description":"แหวนสปิง M3","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงM4","description":"แหวนสปิง M4","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงM5","description":"แหวนสปิง M5","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงM6","description":"แหวนสปิง M6","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM3","description":"แหวนสปิง M3 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM4","description":"แหวนสปิง M4 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM5","description":"แหวนสปิง M5 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":20,"unit":"ตัว"},{"id":"แหวนสปิงสแตนเลสM6","description":"แหวนสปิง M6 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":12,"unit":"ตัว"},{"id":"แหวนอิแปะM3","description":"แหวนอิแปะ M3","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะM4","description":"แหวนอิแปะ M4","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะM5","description":"แหวนอิแปะ M5","category":"Mechanical","minStock":20,"currentStock":4,"unit":"ตัว"},{"id":"แหวนอิแปะM6","description":"แหวนอิแปะ M6","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM3","description":"แหวนอิแปะ M3 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM4","description":"แหวนอิแปะ M4 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":30,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM5","description":"แหวนอิแปะ M5 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"แหวนอิแปะสแตนเลสM6","description":"แหวนอิแปะ M6 สแตนเลส","category":"Mechanical","minStock":20,"currentStock":0,"unit":"ตัว"},{"id":"AB060A050S2P2","description":"GearServo APEX AB060A-050-S2-P2","category":"Mechanical","minStock":1,"currentStock":1,"unit":"ตัว"},{"id":"เคเบิ้นไทร์4","description":"เคเบิ้นไทร์ 4\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"เคเบิ้นไทร์6","description":"เคเบิ้นไทร์ 6\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"เคเบิ้นไทร์8","description":"เคเบิ้นไทร์ 8\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"เคเบิ้นไทร์10","description":"เคเบิ้นไทร์ 10\"","category":"Consumables","minStock":5,"currentStock":0,"unit":"ถุง"},{"id":"PG7","description":"เคเบิ้นแกลน PG 7","category":"Consumables","minStock":0,"currentStock":20,"unit":"ตัว"},{"id":"PG9","description":"เคเบิ้นแกลน PG 9","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG11","description":"เคเบิ้นแกลน PG 11","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG13.5","description":"เคเบิ้นแกลน PG 13.5","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG16","description":"เคเบิ้นแกลน PG 16","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG19","description":"เคเบิ้นแกลน PG 19","category":"Consumables","minStock":0,"currentStock":20,"unit":"ตัว"},{"id":"PG21","description":"เคเบิ้นแกลน PG 21","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"},{"id":"PG25","description":"เคเบิ้นแกลน PG 25","category":"Consumables","minStock":0,"currentStock":0,"unit":"ตัว"}];
+
+let transactions=[{"date":"2026-04-07","type":"IN","itemId":"YW1B-A1E10G","qty":10,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1P-1UQ4G","qty":5,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1P-1UQ4PW","qty":5,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1P-1UQ4R","qty":5,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"BNL6","qty":20,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"D-P3DWA","qty":2,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"DB-C8-J10-F11R","qty":3,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"พัดลม5V","qty":4,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"1.5-3S","qty":500,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"2.5-4S","qty":200,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"YW1B-M1E01R","qty":3,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"QPU6","qty":30,"ref":""},{"date":"2026-04-07","type":"IN","itemId":"QPU8","qty":30,"ref":""},{"date":"2026-04-10","type":"IN","itemId":"สายลม6","qty":100,"ref":""},{"date":"2026-04-10","type":"IN","itemId":"สายลม8","qty":100,"ref":""},{"date":"2026-04-11","type":"IN","itemId":"PG7","qty":20,"ref":""},{"date":"2026-04-11","type":"IN","itemId":"PG19","qty":20,"ref":""},{"date":"2026-04-11","type":"IN","itemId":"MHZL2-25D","qty":2,"ref":""}];
+
+let currentType='IN', currentTab='stock', editItemId=null;
+
+// ===== HELPERS =====
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getItem(id){ return items.find(i=>i.id.toLowerCase()===String(id).toLowerCase()); }
+function isLow(it){ return it.minStock>0 && it.currentStock<it.minStock; }
+function pct(it){ return it.minStock===0?100:Math.min(100,Math.round(it.currentStock/it.minStock*100)); }
+function barCol(it){ return it.currentStock===0?'#ef4444':isLow(it)?'#f59e0b':'#10b981'; }
+
+// ===== RENDER =====
+function renderStats(){
+  const t=items.length,l=items.filter(isLow).length,o=items.filter(i=>!isLow(i)).length,z=items.filter(i=>i.currentStock===0).length;
+  document.getElementById('stats-grid').innerHTML=[
+    {l:'รายการทั้งหมด',v:t,i:'📦',c:'#3b82f6'},{l:'สต็อกปกติ',v:o,i:'✅',c:'#10b981'},
+    {l:'ต้องสั่งเพิ่ม',v:l,i:'⚠️',c:'#f59e0b'},{l:'หมดสต็อก',v:z,i:'🚨',c:'#ef4444'}
+  ].map(d=>`<div class="stat-card" style="border-color:${d.c}22"><div class="stat-icon">${d.i}</div><div class="stat-val" style="color:${d.c}">${d.v}</div><div class="stat-label">${d.l}</div></div>`).join('');
+}
+
+function renderStock(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const cat=document.getElementById('cat-filter').value, st=document.getElementById('status-filter').value;
+  const f=items.filter(it=>{
+    const ms=!q||it.id.toLowerCase().includes(q)||it.description.toLowerCase().includes(q);
+    return ms&&(cat==='all'||it.category===cat)&&(st==='all'||(st==='low'&&isLow(it))||(st==='ok'&&!isLow(it)));
+  });
+  document.getElementById('count-label').textContent=`พบ ${f.length} รายการ`;
+  const body=document.getElementById('stock-body');
+  if(!f.length){body.innerHTML=`<tr><td colspan="8" class="empty-row">ไม่พบรายการที่ค้นหา</td></tr>`;return;}
+  body.innerHTML=f.map(it=>{
+    const low=isLow(it),empty=it.currentStock===0,p=pct(it),bc=barCol(it);
+    const vc=empty?'#ef4444':low?'#f59e0b':'#10b981';
     return `<tr>
-      <td class="mono"><b>${i.id}</b></td>
-      <td>${i.description}</td>
-      <td class="mono" style="font-weight:700; color:${isLow?'var(--yellow)':'inherit'}">${i.currentStock}</td>
-      <td class="mono">${i.minStock}</td>
-      <td><span class="badge ${isLow?'badge-low':''}">${isLow?'⚠️ ORDER':'✅ OK'}</span></td>
-      <td>
-        <button onclick="openTx('IN','${i.id}')" style="color:var(--green); background:none; border:none; cursor:pointer;">รับ</button> |
-        <button onclick="openTx('OUT','${i.id}')" style="color:var(--red); background:none; border:none; cursor:pointer;">เบิก</button> |
-        <button class="btn-edit-tool" onclick="openEdit('${i.id}')">⚙️</button>
-      </td>
+      <td><span class="mono" style="color:#93c5fd;font-size:13px">${esc(it.id)}</span></td>
+      <td style="color:#e2e8f0;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(it.description)}</td>
+      <td><span class="badge ${CAT_CLS[it.category]||''}">${esc(CAT_TH[it.category]||it.category)}</span></td>
+      <td class="mono" style="color:#94a3b8">${it.minStock}</td>
+      <td><div class="stock-cell"><span class="mono" style="color:${vc};font-weight:700;min-width:32px">${it.currentStock}</span>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${p}%;background:${bc}"></div></div></div></td>
+      <td style="color:#64748b;font-size:12px">${esc(it.unit)}</td>
+      <td><span style="font-size:12px;color:${low?'#f59e0b':'#10b981'};font-weight:600">${low?'⚠️ สั่งเพิ่ม':'✓ ปกติ'}</span></td>
+      <td><div class="act-btns">
+        <button class="btn-in" onclick="quickTx('${esc(it.id)}','IN')">รับเข้า</button>
+        <button class="btn-out" onclick="quickTx('${esc(it.id)}','OUT')">เบิกออก</button>
+        <button class="btn-edit-min" onclick="openEditModal('${esc(it.id)}')" title="แก้ไขจุดสั่งซื้อ">✏️ แก้ไข</button>
+      </div></td>
     </tr>`;
   }).join('');
-
-  document.getElementById('tx-body').innerHTML = transactions.map(t => `
-    <tr><td>${t.time}</td><td class="mono">${t.type==='IN'?'📥':'📤'} ${t.id}</td><td class="mono">${t.qty}</td><td>${t.ref}</td></tr>
-  `).join('');
-
-  localStorage.setItem('at_items', JSON.stringify(items));
-  localStorage.setItem('at_tx', JSON.stringify(transactions));
 }
 
-function openEdit(id) {
-  const item = items.find(i => i.id === id);
-  document.getElementById('edit-id').value = id;
-  document.getElementById('edit-name').value = item.description;
-  document.getElementById('edit-min').value = item.minStock;
-  document.getElementById('edit-modal').style.display = 'flex';
+function renderTx(){
+  const q=(document.getElementById('tx-search').value||'').toLowerCase();
+  const f=transactions.filter(tx=>!q||tx.itemId.toLowerCase().includes(q)||(tx.ref||'').toLowerCase().includes(q));
+  const body=document.getElementById('tx-body');
+  if(!f.length){body.innerHTML=`<tr><td colspan="6" class="empty-row">ไม่พบรายการ</td></tr>`;return;}
+  body.innerHTML=f.map(tx=>{
+    const it=getItem(tx.itemId),isIn=tx.type==='IN';
+    return `<tr>
+      <td class="mono" style="color:#64748b;font-size:12px">${esc(tx.date)}</td>
+      <td><span class="badge ${isIn?'badge-in':'badge-out'}">${isIn?'▼ รับเข้า':'▲ เบิกออก'}</span></td>
+      <td class="mono" style="color:#93c5fd">${esc(tx.itemId)}</td>
+      <td style="color:#cbd5e1;font-size:13px">${it?esc(it.description):'-'}</td>
+      <td class="mono" style="color:${isIn?'#10b981':'#f87171'};font-weight:700">${isIn?'+':'-'}${tx.qty}${it&&it.unit?' '+it.unit:''}</td>
+      <td style="color:#94a3b8;font-size:13px">${esc(tx.ref||'-')}</td>
+    </tr>`;
+  }).join('');
 }
 
-function saveEdit() {
-  const id = document.getElementById('edit-id').value;
-  const item = items.find(i => i.id === id);
-  item.description = document.getElementById('edit-name').value;
-  item.minStock = parseInt(document.getElementById('edit-min').value);
-  closeModals(); render();
+function renderOrders(){
+  const low=items.filter(isLow).sort((a,b)=>(a.currentStock/Math.max(a.minStock,1))-(b.currentStock/Math.max(b.minStock,1)));
+  document.getElementById('order-header').textContent=`⚠️ รายการที่ต้องสั่งซื้อเพิ่ม (${low.length} รายการ)`;
+  const body=document.getElementById('orders-body');
+  if(!low.length){body.innerHTML=`<tr><td colspan="7" class="empty-row">✅ สต็อกปกติทุกรายการ</td></tr>`;return;}
+  body.innerHTML=low.map(it=>{
+    const n=it.minStock-it.currentStock,e=it.currentStock===0;
+    return `<tr>
+      <td class="mono" style="color:#93c5fd;font-size:13px">${esc(it.id)}</td>
+      <td style="color:#e2e8f0;font-size:13px">${esc(it.description)}</td>
+      <td><span class="badge ${CAT_CLS[it.category]||''}">${esc(CAT_TH[it.category]||it.category)}</span></td>
+      <td class="mono" style="color:#94a3b8">${it.minStock}</td>
+      <td class="mono" style="color:${e?'#ef4444':'#f59e0b'};font-weight:700">${it.currentStock}</td>
+      <td><span style="background:#ef444422;color:#ef4444;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:800;font-family:'IBM Plex Mono',monospace;border:1px solid #ef444440">+${n}</span></td>
+      <td style="color:#64748b;font-size:12px">${esc(it.unit)}</td>
+    </tr>`;
+  }).join('');
 }
 
-function openTx(mode, id) {
-  currentTxMode = mode;
-  document.getElementById('tx-target-id').value = id;
-  document.getElementById('tx-title').innerText = mode === 'IN' ? '📥 รับเข้าคลัง' : '📤 เบิกออก';
-  document.getElementById('tx-modal').style.display = 'flex';
+// ===== TABS =====
+function switchTab(n){
+  currentTab=n;
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick')===`switchTab('${n}')`));
+  if(n==='transactions') renderTx();
+  if(n==='orders') renderOrders();
 }
 
-function submitTx() {
-  const id = document.getElementById('tx-target-id').value;
-  const qty = parseInt(document.getElementById('tx-qty').value);
-  const item = items.find(i => i.id === id);
-  if(currentTxMode === 'OUT' && item.currentStock < qty) return alert("สต็อกไม่พอ!");
-  item.currentStock += (currentTxMode === 'IN' ? qty : -qty);
-  transactions.unshift({ time: new Date().toLocaleString('th-TH'), type: currentTxMode, id, qty, ref: document.getElementById('tx-ref').value || '-' });
-  closeModals(); render();
+// ===== TX MODAL =====
+function openModal(id='',type='IN'){
+  currentType=type;
+  document.getElementById('modal-itemid').value=id;
+  document.getElementById('modal-qty').value='';
+  document.getElementById('modal-ref').value='';
+  document.getElementById('modal-overlay').classList.add('open');
+  setType(type); updateHint();
+  setTimeout(()=>document.getElementById('modal-itemid').focus(),50);
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
+function quickTx(id,type){ openModal(id,type); }
+
+function setType(type){
+  currentType=type;
+  document.getElementById('btn-type-in').className='type-btn'+(type==='IN'?' active-in':'');
+  document.getElementById('btn-type-out').className='type-btn'+(type==='OUT'?' active-out':'');
+  const s=document.getElementById('btn-submit');
+  s.textContent=type==='IN'?'ยืนยันรับเข้า':'ยืนยันเบิกออก';
+  s.className='btn-submit '+(type==='IN'?'in':'out');
 }
 
-function switchTab(t) {
-  document.getElementById('tab-stock').style.display = t === 'stock' ? 'block' : 'none';
-  document.getElementById('tab-tx').style.display = t === 'tx' ? 'block' : 'none';
-  document.getElementById('ts').className = `tab-btn ${t==='stock'?'active':''}`;
-  document.getElementById('tt').className = `tab-btn ${t==='tx'?'active':''}`;
+function updateHint(){
+  const it=getItem(document.getElementById('modal-itemid').value);
+  const h=document.getElementById('item-hint');
+  if(it){ const low=isLow(it); h.innerHTML=`${esc(it.description)} — คงเหลือ: <b style="color:${low?'#f59e0b':'#10b981'}">${it.currentStock}</b> ${esc(it.unit)}`; }
+  else h.innerHTML='';
 }
 
-function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+function submitTx(){
+  const id=document.getElementById('modal-itemid').value.trim();
+  const qty=parseInt(document.getElementById('modal-qty').value);
+  const ref=document.getElementById('modal-ref').value.trim();
+  if(!id) return showNotif('กรุณาระบุรหัสอะไหล่','#ef4444');
+  if(!qty||qty<=0) return showNotif('กรุณาระบุจำนวนที่ถูกต้อง','#ef4444');
+  const idx=items.findIndex(i=>i.id.toLowerCase()===id.toLowerCase());
+  if(idx===-1) return showNotif('ไม่พบรหัสอะไหล่ในระบบ','#ef4444');
+  const it=items[idx];
+  if(currentType==='OUT'&&it.currentStock<qty) return showNotif(`สต็อกไม่เพียงพอ (คงเหลือ ${it.currentStock} ${it.unit})`,'#ef4444');
+  items[idx]={...it,currentStock:currentType==='IN'?it.currentStock+qty:it.currentStock-qty};
+  transactions.unshift({date:new Date().toISOString().split('T')[0],type:currentType,itemId:it.id,qty,ref});
+  closeModal(); renderStats(); renderStock();
+  if(currentTab==='transactions') renderTx();
+  if(currentTab==='orders') renderOrders();
+  showNotif(`${currentType==='IN'?'รับเข้า':'เบิกออก'} ${it.id} จำนวน ${qty} ${it.unit} สำเร็จ`);
+}
+
+// ===== EDIT MIN STOCK =====
+function openEditModal(id){
+  const it=getItem(id); if(!it) return;
+  editItemId=it.id;
+  const vc=it.currentStock===0?'#ef4444':isLow(it)?'#f59e0b':'#10b981';
+  document.getElementById('edit-info').innerHTML=`
+    <div class="edit-info-id">${esc(it.id)}</div>
+    <div class="edit-info-desc">${esc(it.description)}</div>
+    <div class="edit-info-row">
+      <div class="edit-info-stat">จุดสั่งซื้อเดิม: <b style="color:#f59e0b">${it.minStock}</b></div>
+      <div class="edit-info-stat">คงเหลือ: <b style="color:${vc}">${it.currentStock}</b> ${esc(it.unit)}</div>
+    </div>`;
+  document.getElementById('edit-min').value=it.minStock;
+  document.getElementById('edit-overlay').classList.add('open');
+  setTimeout(()=>{ const inp=document.getElementById('edit-min'); inp.focus(); inp.select(); },50);
+}
+function closeEditModal(){ document.getElementById('edit-overlay').classList.remove('open'); editItemId=null; }
+
+function submitEditMin(){
+  const v=parseInt(document.getElementById('edit-min').value);
+  if(isNaN(v)||v<0) return showNotif('กรุณาระบุค่า >= 0','#ef4444');
+  const idx=items.findIndex(i=>i.id===editItemId); if(idx===-1) return;
+  const old=items[idx].minStock;
+  items[idx]={...items[idx],minStock:v};
+  closeEditModal(); renderStats(); renderStock();
+  if(currentTab==='orders') renderOrders();
+  showNotif(`✏️ อัปเดตจุดสั่งซื้อ ${editItemId}: ${old} → ${v}`,'#f59e0b');
+}
+
+// ===== NOTIF =====
+function showNotif(msg,color='#10b981'){
+  const el=document.getElementById('notif');
+  el.textContent=msg; el.style.background=color; el.style.display='block';
+  clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none',3000);
+}
+
+// ===== INIT =====
+document.getElementById('item-datalist').innerHTML=items.map(i=>`<option value="${esc(i.id)}">${esc(i.description)}</option>`).join('');
+renderStats(); renderStock();
+document.getElementById('modal-qty').addEventListener('keydown',e=>{ if(e.key==='Enter') submitTx(); });
+document.getElementById('edit-min').addEventListener('keydown',e=>{ if(e.key==='Enter') submitEditMin(); });
+document.getElementById('login-input').focus();
 </script>
 </body>
 </html>

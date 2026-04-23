@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
+  :root {  
     --bg: #0b1120; --surface: #111827; --surface2: #1a2436;
     --border: #1e2d45; --border2: #253654; --text: #e2e8f0; --muted: #64748b;
     --blue: #3b82f6; --cyan: #06b6d4; --green: #10b981;
@@ -203,17 +203,15 @@
 </div>
 
 <datalist id="item-datalist"></datalist>
-
 <script>
-// ===== CONFIG =====
+// 1. นำ URL จาก Google Apps Script มาวางที่นี่
 const API_URL = 'https://script.google.com/macros/s/AKfycbwT_G2qxDVr9cyYpAmby1Dkoa5yeK0XHvMb8C8piOiu2Fp1oCkrOhwn4BQtRv9QcnfvoQ/exec';
 const PASSWORD = '1234';
 
 let items = [];
 let isSaving = false;
 let currentType = 'IN';
-let currentTab = 'stock';
-let editItemId = null;
+let currentTab = 'stock'; // เก็บสถานะหน้าปัจจุบัน
 
 // ===== HELPERS =====
 const CAT_TH = { Electrical:'ไฟฟ้า', Pneumatic:'นิวแมติก', Mechanical:'เครื่องกล', Consumables:'วัสดุสิ้นเปลือง' };
@@ -222,7 +220,7 @@ const CAT_CLS = { Electrical:'badge-cat-E', Pneumatic:'badge-cat-P', Mechanical:
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function getId(it){ return it.itemId || it.id || ''; }
 
-// ===== API =====
+// ===== API CORE =====
 async function loadData() {
   document.getElementById('loading-bar').style.width = '30%';
   setSyncStatus('syncing', 'กำลังโหลด...');
@@ -230,7 +228,7 @@ async function loadData() {
     const res = await fetch(API_URL);
     items = await res.json();
     setSyncStatus('ok', 'เชื่อมต่อแล้ว');
-    updateDisplay();
+    updateDisplay(); // วาดหน้าจอใหม่ทุกครั้งที่โหลดข้อมูล
     document.getElementById('loading-bar').style.width = '100%';
     setTimeout(() => document.getElementById('loading-bar').style.width = '0', 500);
   } catch(e) {
@@ -240,7 +238,6 @@ async function loadData() {
 }
 
 async function apiPost(action, payload) {
-  // ใช้ no-cors และดัก catch เพื่อจัดการ Error ที่เกิดจาก Browser บล็อก response
   try {
     await fetch(API_URL, {
       method: 'POST',
@@ -250,61 +247,85 @@ async function apiPost(action, payload) {
       body: JSON.stringify({ action, payload })
     });
     return true; 
-  } catch(e) { return true; } // ส่งผ่าน error เพื่อให้ระบบทำงานต่อได้
+  } catch(e) { return true; }
 }
 
-// ===== RENDER =====
+// ===== RENDER LOGIC (จุดที่แก้ไข) =====
+
+function switchTab(t) {
+  currentTab = t;
+  // เปลี่ยนสีปุ่ม Tab
+  document.getElementById('tab-stock-btn').className = t === 'stock' ? 'tab-btn active' : 'tab-btn';
+  document.getElementById('tab-orders-btn').className = t === 'orders' ? 'tab-btn active' : 'tab-btn';
+  
+  // ล้างช่องค้นหาเมื่อเปลี่ยนหน้า
+  document.getElementById('search').value = '';
+  
+  updateDisplay(); 
+}
+
 function updateDisplay() {
   renderStats();
-  if(currentTab === 'stock') renderStock(); else renderOrders();
+  if (currentTab === 'stock') {
+    renderStock();
+  } else {
+    renderOrders();
+  }
   buildDatalist();
 }
 
 function renderStock() {
   const q = document.getElementById('search').value.toLowerCase();
   const cat = document.getElementById('cat-filter').value;
-  const f = items.filter(it => {
+  // กรองตามคำค้นหาและหมวดหมู่
+  const filtered = items.filter(it => {
     const id = getId(it).toLowerCase();
     const ds = (it.description || '').toLowerCase();
     return (cat === 'all' || it.category === cat) && (id.includes(q) || ds.includes(q));
   });
-  renderTable(f);
+  renderTable(filtered, false);
 }
 
 function renderOrders() {
-  const f = items.filter(it => Number(it.currentStock) < Number(it.minStock));
-  renderTable(f, true);
+  // กรองเฉพาะรายการที่ต้องสั่งเพิ่มเท่านั้น (Stock < Min)
+  const lowItems = items.filter(it => Number(it.currentStock) < Number(it.minStock));
+  renderTable(lowItems, true);
+  showNotif('แสดงรายการที่ต้องสั่งเพิ่ม', 'var(--blue)');
 }
 
 function renderTable(data, isOrderPage = false) {
   const body = document.getElementById('stock-body');
-  if(data.length === 0) {
-    body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:60px; color:var(--muted)">${isOrderPage ? '✅ สต็อกปกติทุกรายการ' : '🔍 ไม่พบรายการที่คุณค้นหา'}</td></tr>`;
-    document.getElementById('count-label').innerText = `พบ 0 รายการ`;
+  const countLabel = document.getElementById('count-label');
+  
+  if (data.length === 0) {
+    body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:60px; color:var(--muted)">${isOrderPage ? '✅ สต็อกปกติทุกรายการ' : '🔍 ไม่พบรายการ'}</td></tr>`;
+    countLabel.innerText = `พบ 0 รายการ`;
     return;
   }
 
   body.innerHTML = data.map(it => {
     const id = getId(it);
-    const low = Number(it.currentStock) < Number(it.minStock);
-    const p = Math.min(100, (Number(it.currentStock)/Math.max(1, Number(it.minStock)))*100);
-    const color = Number(it.currentStock) <= 0 ? 'var(--red)' : low ? 'var(--yellow)' : 'var(--green)';
+    const min = Number(it.minStock) || 0;
+    const current = Number(it.currentStock) || 0;
+    const isLow = current < min;
+    const progress = Math.min(100, (current / Math.max(1, min)) * 100);
+    const color = current <= 0 ? 'var(--red)' : isLow ? 'var(--yellow)' : 'var(--green)';
     
     return `
       <tr>
         <td>${it.imageUrl ? `<img src="${it.imageUrl}" class="img-cell" onclick="window.open('${it.imageUrl}')">` : `<div class="img-placeholder">🖼️</div>`}</td>
         <td style="font-family:monospace; color:var(--cyan); font-weight:600">${esc(id)}</td>
-        <td title="${esc(it.description)}">${esc(it.description)}</td>
+        <td>${esc(it.description)}</td>
         <td><span class="badge ${CAT_CLS[it.category] || ''}">${CAT_TH[it.category] || it.category}</span></td>
-        <td style="font-family:monospace">${it.minStock}</td>
+        <td style="font-family:monospace">${min}</td>
         <td>
           <div style="display:flex; align-items:center; gap:8px;">
-            <b style="color:${color}; font-family:monospace; font-size:15px">${it.currentStock}</b>
-            <div style="flex:1; height:4px; background:var(--border2); border-radius:2px; overflow:hidden; width:40px">
-              <div style="width:${p}%; background:${color}; height:100%"></div>
+            <b style="color:${color}; font-family:monospace; font-size:15px">${current}</b>
+            <div style="flex:1; height:4px; background:var(--border2); border-radius:2px; overflow:hidden; min-width:40px">
+              <div style="width:${progress}%; background:${color}; height:100%"></div>
             </div>
           </div>
-          ${isOrderPage ? `<span style="font-size:10px; color:var(--red)">ขาดอีก ${it.minStock - it.currentStock}</span>` : ''}
+          ${isOrderPage ? `<div style="font-size:10px; color:var(--red); margin-top:2px;">ขาดอีก ${min - current}</div>` : ''}
         </td>
         <td style="color:var(--muted)">${esc(it.unit)}</td>
         <td>
@@ -317,7 +338,8 @@ function renderTable(data, isOrderPage = false) {
       </tr>
     `;
   }).join('');
-  document.getElementById('count-label').innerText = `พบ ${data.length} รายการ`;
+  
+  countLabel.innerText = isOrderPage ? `ต้องสั่งเพิ่ม ${data.length} รายการ` : `พบ ${data.length} รายการ`;
 }
 
 function renderStats() {
@@ -327,12 +349,12 @@ function renderStats() {
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="stat-val" style="color:var(--blue)">${total}</div><div style="color:var(--muted); font-size:12px">รายการทั้งหมด</div></div>
     <div class="stat-card"><div class="stat-val" style="color:var(--green)">${total - low}</div><div style="color:var(--muted); font-size:12px">สต็อกปกติ</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--yellow)">${low}</div><div style="color:var(--muted); font-size:12px">ต้องสั่งเพิ่ม</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="switchTab('orders')"><div class="stat-val" style="color:var(--yellow)">${low}</div><div style="color:var(--muted); font-size:12px">ต้องสั่งเพิ่ม ⚠️</div></div>
     <div class="stat-card"><div class="stat-val" style="color:var(--red)">${out}</div><div style="color:var(--muted); font-size:12px">หมดสต็อก</div></div>
   `;
 }
 
-// ===== ACTIONS =====
+// ===== ACTIONS & UI =====
 async function submitTx() {
   if(isSaving) return;
   const itemId = document.getElementById('modal-itemid').value.trim();
@@ -347,9 +369,8 @@ async function submitTx() {
   const newStock = currentType === 'IN' ? oldStock + qty : oldStock - qty;
   if(newStock < 0) { showNotif('❌ สต็อกไม่พอเบิก', 'var(--red)'); return; }
 
-  // UI UPDATE
   items[idx].currentStock = newStock;
-  updateDisplay();
+  updateDisplay(); // อัปเดตหน้าจอทันที
   closeModal();
   isSaving = true;
   setSyncStatus('syncing', 'กำลังบันทึก...');
@@ -359,10 +380,9 @@ async function submitTx() {
     setSyncStatus('ok', 'เชื่อมต่อแล้ว');
     showNotif('✅ บันทึกสำเร็จ');
   } catch(e) {
-    items[idx].currentStock = oldStock; // Rollback
+    items[idx].currentStock = oldStock; // Rollback หากพลาด
     updateDisplay();
     setSyncStatus('error', 'บันทึกล้มเหลว');
-    showNotif('❌ บันทึกล้มเหลว', 'var(--red)');
   } finally { isSaving = false; }
 }
 
@@ -377,20 +397,16 @@ async function submitEditMin() {
   updateDisplay();
   closeEditModal();
   isSaving = true;
-  setSyncStatus('syncing', 'กำลังอัปเดต...');
 
   try {
     await apiPost('updateMinStock', { itemId: editItemId, minStock: v });
-    setSyncStatus('ok', 'เชื่อมต่อแล้ว');
     showNotif('✅ อัปเดตจุดสั่งซื้อสำเร็จ');
   } catch(e) {
     items[idx].minStock = oldMin;
     updateDisplay();
-    showNotif('❌ อัปเดตล้มเหลว', 'var(--red)');
   } finally { isSaving = false; }
 }
 
-// ===== UI LOGIC =====
 function onPinInput() {
   const v = document.getElementById('login-input').value;
   for(let i=0; i<4; i++) document.getElementById('d'+i).className = 'pin-dot' + (i < v.length ? ' filled' : '');
@@ -405,13 +421,6 @@ function onPinInput() {
       setTimeout(() => { document.getElementById('login-error').innerText = ''; onPinInput(); }, 1500);
     }
   }
-}
-
-function switchTab(t) {
-  currentTab = t;
-  document.getElementById('tab-stock-btn').className = t === 'stock' ? 'tab-btn active' : 'tab-btn';
-  document.getElementById('tab-orders-btn').className = t === 'orders' ? 'tab-btn active' : 'tab-btn';
-  updateDisplay();
 }
 
 function openModal(id = '', type = 'IN') {
@@ -463,8 +472,5 @@ function showNotif(m, c = 'var(--green)') {
 
 function quickTx(id, type) { openModal(id, type); }
 
-// Login Focus Fix
 document.addEventListener('click', () => { if(!document.getElementById('login-screen').classList.contains('hidden')) document.getElementById('login-input').focus(); });
 </script>
-</body>
-</html>

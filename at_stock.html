@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {  
+  :root {
     --bg: #0b1120; --surface: #111827; --surface2: #1a2436;
     --border: #1e2d45; --border2: #253654; --text: #e2e8f0; --muted: #64748b;
     --blue: #3b82f6; --cyan: #06b6d4; --green: #10b981;
@@ -24,14 +24,16 @@
   .img-cell:hover { transform: scale(1.15); }
   .img-placeholder { width: 45px; height: 45px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--muted); border: 1px dashed var(--border2); }
 
-  /* LOGIN */
-  #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+  /* LOGIN & QUICK TX SCREEN */
+  #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
   #login-screen.hidden { display: none; }
-  .login-box { background: var(--surface2); border: 1px solid var(--border2); border-radius: 24px; padding: 48px 44px; width: 380px; text-align: center; animation: slideUp .35s ease; }
-  .pin-dots { display: flex; gap: 12px; justify-content: center; margin-bottom: 22px; }
+  .login-wrapper { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; align-items: stretch; max-width: 900px; width: 100%; animation: slideUp .35s ease; }
+  .login-box { background: var(--surface2); border: 1px solid var(--border2); border-radius: 24px; padding: 40px; width: 100%; max-width: 400px; flex: 1 1 350px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+  
+  .pin-dots { display: flex; gap: 12px; justify-content: center; margin-bottom: 22px; cursor: pointer; padding: 10px; }
   .pin-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--border2); transition: all .15s; }
   .pin-dot.filled { background: var(--blue); border-color: var(--blue); box-shadow: 0 0 10px #3b82f660; }
-  .login-input { width: 100%; opacity: 0; position: absolute; pointer-events: none; }
+  .login-input { width: 1px; height: 1px; opacity: 0; position: absolute; overflow: hidden; }
   
   /* APP STRUCTURE */
   #app-screen { display: none; }
@@ -69,6 +71,11 @@
   .btn-edit { color: var(--yellow); border-color: #f59e0b40; }
   .btn-edit:hover { background: #f59e0b15; }
 
+  .btn-submit { border: none; color: #fff; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+  .btn-submit.in { background: linear-gradient(135deg, #10b981, #059669); }
+  .btn-submit.out { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .btn-submit:hover { opacity: .88; }
+
   /* MODALS */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
   .modal-overlay.open { display: flex; }
@@ -92,16 +99,50 @@
 <div id="notif"></div>
 
 <div id="login-screen">
-  <div class="login-box">
-    <div style="font-size: 50px; margin-bottom: 12px;">📦</div>
-    <h2 style="margin-bottom: 8px;">AT Stock</h2>
-    <p style="color: var(--muted); margin-bottom: 24px;">กรุณาใส่รหัสผ่าน 4 หลัก</p>
-    <div class="pin-dots">
-      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
-      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+  <div class="login-wrapper">
+    
+    <div class="login-box" style="justify-content: flex-start; text-align: left;">
+      <div style="font-size: 32px; margin-bottom: 8px; text-align: center;">📝</div>
+      <h2 style="margin-bottom: 8px; text-align: center;">บันทึกรายการด่วน</h2>
+      <p style="color: var(--muted); margin-bottom: 24px; text-align: center; font-size: 13px;">สำหรับสแกนหรือคีย์รับ-เบิกของ</p>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button id="quick-btn-in" class="tab-btn active" style="flex:1; padding: 12px;" onclick="setQuickType('IN')">📥 รับเข้า</button>
+        <button id="quick-btn-out" class="tab-btn" style="flex:1; border:1px solid var(--border2); padding: 12px;" onclick="setQuickType('OUT')">📤 เบิกออก</button>
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px;">รหัสอะไหล่ *</label>
+        <input class="search-box" style="width: 100%; font-size: 15px; padding: 12px;" id="quick-itemid" list="item-datalist" oninput="updateQuickHint()" placeholder="ค้นหารหัส...">
+      </div>
+      
+      <div id="quick-item-hint" style="font-size: 13px; color: var(--cyan); margin-bottom: 15px; min-height: 20px; font-weight: 600;"></div>
+      
+      <div style="margin-bottom: 15px;">
+        <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px;">จำนวน *</label>
+        <input class="search-box" style="width: 100%; font-size: 15px; padding: 12px;" id="quick-qty" type="number" placeholder="0">
+      </div>
+      
+      <div style="margin-bottom: 24px;">
+        <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px;">อ้างอิง (โปรเจกต์/ผู้เบิก)</label>
+        <input class="search-box" style="width: 100%; font-size: 15px; padding: 12px;" id="quick-ref" placeholder="-">
+      </div>
+      
+      <button id="quick-submit" class="btn-submit in" style="width:100%; padding:14px; font-size:16px; border-radius:10px;" onclick="submitQuickTx()">ยืนยันรับเข้า</button>
     </div>
-    <input type="password" id="login-input" class="login-input" maxlength="4" autofocus oninput="onPinInput()">
-    <p id="login-error" style="color: var(--red); margin-top: 16px; font-size: 14px; font-weight: bold;"></p>
+
+    <div class="login-box" onclick="document.getElementById('login-input').focus()">
+      <div style="font-size: 40px; margin-bottom: 12px;">📦</div>
+      <h2 style="margin-bottom: 8px;">AT Stock</h2>
+      <p style="color: var(--muted); margin-bottom: 30px;">เข้าสู่ระบบจัดการสต็อก (Admin)</p>
+      <div class="pin-dots">
+        <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+        <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+      </div>
+      <input type="password" id="login-input" class="login-input" maxlength="4" autofocus oninput="onPinInput()">
+      <p id="login-error" style="color: var(--red); margin-top: 16px; font-size: 14px; font-weight: bold;"></p>
+    </div>
+
   </div>
 </div>
 
@@ -120,7 +161,7 @@
         <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-text">เชื่อมต่อแล้ว</span></div>
         <button class="tab-btn" style="border: 1px solid var(--border2)" onclick="loadData()">🔄</button>
         <button class="tab-btn active" onclick="openModal()">+ บันทึก</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size: 12px;">🔒 ออก</button>
+        <button onclick="doLogout()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size: 12px;">🔒 ออก</button>
       </div>
     </div>
   </div>
@@ -129,8 +170,8 @@
     <div class="stats-grid" id="stats-grid"></div>
 
     <div class="filters">
-      <input class="search-box" id="search" placeholder="🔍 ค้นหารหัส หรือ ชื่ออะไหล่..." oninput="renderStock()">
-      <select class="search-box" id="cat-filter" style="flex: 0.25;" onchange="renderStock()">
+      <input class="search-box" id="search" placeholder="🔍 ค้นหารหัส หรือ ชื่ออะไหล่..." oninput="updateDisplay()">
+      <select class="search-box" id="cat-filter" style="flex: 0.25;" onchange="updateDisplay()">
         <option value="all">ทุกหมวดหมู่</option>
         <option value="Electrical">ไฟฟ้า</option>
         <option value="Pneumatic">นิวแมติก</option>
@@ -168,12 +209,12 @@
       <button id="btn-type-out" class="tab-btn" style="flex:1; border:1px solid var(--border2)" onclick="setType('OUT')">เบิกออก</button>
     </div>
     <div style="margin-bottom: 15px;">
-      <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px;">รหัสอะไหล่</label>
+      <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px;">รหัสอะไหล่ *</label>
       <input class="search-box" style="width: 100%;" id="modal-itemid" list="item-datalist" oninput="updateHint()" placeholder="พิมพ์รหัสเพื่อค้นหา...">
     </div>
     <div id="item-hint" style="font-size: 12px; color: var(--cyan); margin-bottom: 15px; min-height: 18px; font-weight: 600;"></div>
     <div style="margin-bottom: 15px;">
-      <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px;">จำนวน</label>
+      <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px;">จำนวน *</label>
       <input class="search-box" style="width: 100%;" id="modal-qty" type="number" placeholder="0">
     </div>
     <div style="margin-bottom: 24px;">
@@ -182,7 +223,7 @@
     </div>
     <div style="display: flex; gap: 12px;">
       <button class="tab-btn" style="flex:1; border: 1px solid var(--border2)" onclick="closeModal()">ยกเลิก</button>
-      <button id="btn-submit" class="tab-btn active" style="flex:2" onclick="submitTx()">ยืนยันบันทึก</button>
+      <button id="btn-submit" class="btn-submit in" style="flex:2; padding:12px; border-radius:10px" onclick="submitTx()">ยืนยันบันทึก</button>
     </div>
   </div>
 </div>
@@ -203,22 +244,29 @@
 </div>
 
 <datalist id="item-datalist"></datalist>
+
 <script>
-// 1. นำ URL จาก Google Apps Script มาวางที่นี่
+// ===== 1. ใส่ URL และรหัสผ่านที่นี่ =====
 const API_URL = 'https://script.google.com/macros/s/AKfycbwT_G2qxDVr9cyYpAmby1Dkoa5yeK0XHvMb8C8piOiu2Fp1oCkrOhwn4BQtRv9QcnfvoQ/exec';
 const PASSWORD = '1234';
 
 let items = [];
 let isSaving = false;
 let currentType = 'IN';
-let currentTab = 'stock'; // เก็บสถานะหน้าปัจจุบัน
+let quickType = 'IN';
+let currentTab = 'stock';
+let editItemId = null;
 
-// ===== HELPERS =====
 const CAT_TH = { Electrical:'ไฟฟ้า', Pneumatic:'นิวแมติก', Mechanical:'เครื่องกล', Consumables:'วัสดุสิ้นเปลือง' };
 const CAT_CLS = { Electrical:'badge-cat-E', Pneumatic:'badge-cat-P', Mechanical:'badge-cat-M', Consumables:'badge-cat-M' };
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function getId(it){ return it.itemId || it.id || ''; }
+
+// โหลดข้อมูลอัตโนมัติตั้งแต่เปิดเว็บ
+window.onload = () => {
+  loadData();
+};
 
 // ===== API CORE =====
 async function loadData() {
@@ -228,12 +276,12 @@ async function loadData() {
     const res = await fetch(API_URL);
     items = await res.json();
     setSyncStatus('ok', 'เชื่อมต่อแล้ว');
-    updateDisplay(); // วาดหน้าจอใหม่ทุกครั้งที่โหลดข้อมูล
+    updateDisplay();
     document.getElementById('loading-bar').style.width = '100%';
     setTimeout(() => document.getElementById('loading-bar').style.width = '0', 500);
   } catch(e) {
     setSyncStatus('error', 'เชื่อมต่อล้มเหลว');
-    showNotif('❌ โหลดข้อมูลไม่สำเร็จ', 'var(--red)');
+    showNotif('❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรช', 'var(--red)');
   }
 }
 
@@ -250,82 +298,58 @@ async function apiPost(action, payload) {
   } catch(e) { return true; }
 }
 
-// ===== RENDER LOGIC (จุดที่แก้ไข) =====
-
-function switchTab(t) {
-  currentTab = t;
-  // เปลี่ยนสีปุ่ม Tab
-  document.getElementById('tab-stock-btn').className = t === 'stock' ? 'tab-btn active' : 'tab-btn';
-  document.getElementById('tab-orders-btn').className = t === 'orders' ? 'tab-btn active' : 'tab-btn';
-  
-  // ล้างช่องค้นหาเมื่อเปลี่ยนหน้า
-  document.getElementById('search').value = '';
-  
-  updateDisplay(); 
-}
-
+// ===== RENDER LOGIC =====
 function updateDisplay() {
   renderStats();
-  if (currentTab === 'stock') {
-    renderStock();
-  } else {
-    renderOrders();
-  }
+  if(currentTab === 'stock') renderStock(); else renderOrders();
   buildDatalist();
 }
 
 function renderStock() {
   const q = document.getElementById('search').value.toLowerCase();
   const cat = document.getElementById('cat-filter').value;
-  // กรองตามคำค้นหาและหมวดหมู่
-  const filtered = items.filter(it => {
+  const f = items.filter(it => {
     const id = getId(it).toLowerCase();
     const ds = (it.description || '').toLowerCase();
     return (cat === 'all' || it.category === cat) && (id.includes(q) || ds.includes(q));
   });
-  renderTable(filtered, false);
+  renderTable(f);
 }
 
 function renderOrders() {
-  // กรองเฉพาะรายการที่ต้องสั่งเพิ่มเท่านั้น (Stock < Min)
-  const lowItems = items.filter(it => Number(it.currentStock) < Number(it.minStock));
-  renderTable(lowItems, true);
-  showNotif('แสดงรายการที่ต้องสั่งเพิ่ม', 'var(--blue)');
+  const f = items.filter(it => Number(it.currentStock) < Number(it.minStock));
+  renderTable(f, true);
 }
 
 function renderTable(data, isOrderPage = false) {
   const body = document.getElementById('stock-body');
-  const countLabel = document.getElementById('count-label');
-  
-  if (data.length === 0) {
-    body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:60px; color:var(--muted)">${isOrderPage ? '✅ สต็อกปกติทุกรายการ' : '🔍 ไม่พบรายการ'}</td></tr>`;
-    countLabel.innerText = `พบ 0 รายการ`;
+  if(data.length === 0) {
+    body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:60px; color:var(--muted)">${isOrderPage ? '✅ สต็อกปกติทุกรายการ' : '🔍 ไม่พบรายการที่คุณค้นหา'}</td></tr>`;
+    document.getElementById('count-label').innerText = `พบ 0 รายการ`;
     return;
   }
 
   body.innerHTML = data.map(it => {
     const id = getId(it);
-    const min = Number(it.minStock) || 0;
-    const current = Number(it.currentStock) || 0;
-    const isLow = current < min;
-    const progress = Math.min(100, (current / Math.max(1, min)) * 100);
-    const color = current <= 0 ? 'var(--red)' : isLow ? 'var(--yellow)' : 'var(--green)';
+    const low = Number(it.currentStock) < Number(it.minStock);
+    const p = Math.min(100, (Number(it.currentStock)/Math.max(1, Number(it.minStock)))*100);
+    const color = Number(it.currentStock) <= 0 ? 'var(--red)' : low ? 'var(--yellow)' : 'var(--green)';
     
     return `
       <tr>
         <td>${it.imageUrl ? `<img src="${it.imageUrl}" class="img-cell" onclick="window.open('${it.imageUrl}')">` : `<div class="img-placeholder">🖼️</div>`}</td>
         <td style="font-family:monospace; color:var(--cyan); font-weight:600">${esc(id)}</td>
-        <td>${esc(it.description)}</td>
+        <td title="${esc(it.description)}">${esc(it.description)}</td>
         <td><span class="badge ${CAT_CLS[it.category] || ''}">${CAT_TH[it.category] || it.category}</span></td>
-        <td style="font-family:monospace">${min}</td>
+        <td style="font-family:monospace">${it.minStock}</td>
         <td>
           <div style="display:flex; align-items:center; gap:8px;">
-            <b style="color:${color}; font-family:monospace; font-size:15px">${current}</b>
-            <div style="flex:1; height:4px; background:var(--border2); border-radius:2px; overflow:hidden; min-width:40px">
-              <div style="width:${progress}%; background:${color}; height:100%"></div>
+            <b style="color:${color}; font-family:monospace; font-size:15px">${it.currentStock}</b>
+            <div style="flex:1; height:4px; background:var(--border2); border-radius:2px; overflow:hidden; width:40px">
+              <div style="width:${p}%; background:${color}; height:100%"></div>
             </div>
           </div>
-          ${isOrderPage ? `<div style="font-size:10px; color:var(--red); margin-top:2px;">ขาดอีก ${min - current}</div>` : ''}
+          ${isOrderPage ? `<span style="font-size:10px; color:var(--red)">ขาดอีก ${it.minStock - it.currentStock}</span>` : ''}
         </td>
         <td style="color:var(--muted)">${esc(it.unit)}</td>
         <td>
@@ -338,8 +362,7 @@ function renderTable(data, isOrderPage = false) {
       </tr>
     `;
   }).join('');
-  
-  countLabel.innerText = isOrderPage ? `ต้องสั่งเพิ่ม ${data.length} รายการ` : `พบ ${data.length} รายการ`;
+  document.getElementById('count-label').innerText = `พบ ${data.length} รายการ`;
 }
 
 function renderStats() {
@@ -354,7 +377,87 @@ function renderStats() {
   `;
 }
 
-// ===== ACTIONS & UI =====
+// ===== LOGIN LOGIC =====
+function onPinInput() {
+  const v = document.getElementById('login-input').value;
+  for(let i=0; i<4; i++) document.getElementById('d'+i).className = 'pin-dot' + (i < v.length ? ' filled' : '');
+  if(v.length === 4) {
+    if(v === PASSWORD) {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-screen').classList.add('show');
+      updateDisplay(); // แสดงผลแอดมิน
+    } else {
+      document.getElementById('login-error').innerText = 'รหัสผ่านไม่ถูกต้อง!';
+      document.getElementById('login-input').value = '';
+      setTimeout(() => { document.getElementById('login-error').innerText = ''; onPinInput(); }, 1500);
+    }
+  }
+}
+function doLogout() {
+  document.getElementById('login-input').value = '';
+  onPinInput();
+  document.getElementById('app-screen').classList.remove('show');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+// ===== QUICK TX LOGIC (หน้า Login) =====
+function setQuickType(t) {
+  quickType = t;
+  document.getElementById('quick-btn-in').className = t === 'IN' ? 'tab-btn active' : 'tab-btn';
+  document.getElementById('quick-btn-out').className = t === 'OUT' ? 'tab-btn active' : 'tab-btn';
+  
+  const btn = document.getElementById('quick-submit');
+  btn.className = 'btn-submit ' + (t === 'IN' ? 'in' : 'out');
+  btn.textContent = t === 'IN' ? 'ยืนยันรับเข้า' : 'ยืนยันเบิกออก';
+}
+
+function updateQuickHint() {
+  const id = document.getElementById('quick-itemid').value;
+  const it = items.find(i => getId(i).toLowerCase() === id.toLowerCase());
+  document.getElementById('quick-item-hint').innerText = it ? `${it.description} (คลัง: ${it.currentStock} ${it.unit})` : '';
+}
+
+async function submitQuickTx() {
+  if(isSaving) return;
+  const itemId = document.getElementById('quick-itemid').value.trim();
+  const qty = parseInt(document.getElementById('quick-qty').value);
+  const ref = document.getElementById('quick-ref').value.trim() || '-';
+  const idx = items.findIndex(i => getId(i).toLowerCase() === itemId.toLowerCase());
+
+  if(!itemId || isNaN(qty) || qty <= 0 || idx === -1) { 
+    showNotif('⚠️ รหัสไม่ถูกต้อง หรือไม่พบในระบบ', 'var(--yellow)'); return; 
+  }
+
+  const it = items[idx];
+  const oldStock = Number(it.currentStock);
+  const newStock = quickType === 'IN' ? oldStock + qty : oldStock - qty;
+  if(newStock < 0) { showNotif('❌ สต็อกไม่พอเบิก', 'var(--red)'); return; }
+
+  // Optimistic Update
+  items[idx].currentStock = newStock;
+  updateQuickHint();
+  
+  // Clear inputs
+  document.getElementById('quick-itemid').value = '';
+  document.getElementById('quick-qty').value = '';
+  document.getElementById('quick-ref').value = '';
+  document.getElementById('quick-item-hint').innerText = '';
+
+  isSaving = true;
+  showNotif('💾 กำลังบันทึก...', 'var(--blue)');
+
+  try {
+    await apiPost('updateStock', { itemId: getId(it), newStock, type: quickType, qty, ref });
+    showNotif('✅ บันทึกรายการสำเร็จ');
+  } catch(e) {
+    items[idx].currentStock = oldStock; // Rollback
+    updateQuickHint();
+    showNotif('❌ บันทึกล้มเหลว กรุณาลองใหม่', 'var(--red)');
+  } finally { isSaving = false; }
+}
+
+
+// ===== DASHBOARD TX LOGIC (หลัง Login) =====
 async function submitTx() {
   if(isSaving) return;
   const itemId = document.getElementById('modal-itemid').value.trim();
@@ -370,7 +473,7 @@ async function submitTx() {
   if(newStock < 0) { showNotif('❌ สต็อกไม่พอเบิก', 'var(--red)'); return; }
 
   items[idx].currentStock = newStock;
-  updateDisplay(); // อัปเดตหน้าจอทันที
+  updateDisplay();
   closeModal();
   isSaving = true;
   setSyncStatus('syncing', 'กำลังบันทึก...');
@@ -380,9 +483,10 @@ async function submitTx() {
     setSyncStatus('ok', 'เชื่อมต่อแล้ว');
     showNotif('✅ บันทึกสำเร็จ');
   } catch(e) {
-    items[idx].currentStock = oldStock; // Rollback หากพลาด
+    items[idx].currentStock = oldStock; // Rollback
     updateDisplay();
     setSyncStatus('error', 'บันทึกล้มเหลว');
+    showNotif('❌ บันทึกล้มเหลว', 'var(--red)');
   } finally { isSaving = false; }
 }
 
@@ -397,30 +501,26 @@ async function submitEditMin() {
   updateDisplay();
   closeEditModal();
   isSaving = true;
+  setSyncStatus('syncing', 'กำลังอัปเดต...');
 
   try {
     await apiPost('updateMinStock', { itemId: editItemId, minStock: v });
+    setSyncStatus('ok', 'เชื่อมต่อแล้ว');
     showNotif('✅ อัปเดตจุดสั่งซื้อสำเร็จ');
   } catch(e) {
     items[idx].minStock = oldMin;
     updateDisplay();
+    showNotif('❌ อัปเดตล้มเหลว', 'var(--red)');
   } finally { isSaving = false; }
 }
 
-function onPinInput() {
-  const v = document.getElementById('login-input').value;
-  for(let i=0; i<4; i++) document.getElementById('d'+i).className = 'pin-dot' + (i < v.length ? ' filled' : '');
-  if(v.length === 4) {
-    if(v === PASSWORD) {
-      document.getElementById('login-screen').classList.add('hidden');
-      document.getElementById('app-screen').classList.add('show');
-      loadData();
-    } else {
-      document.getElementById('login-error').innerText = 'รหัสผ่านไม่ถูกต้อง!';
-      document.getElementById('login-input').value = '';
-      setTimeout(() => { document.getElementById('login-error').innerText = ''; onPinInput(); }, 1500);
-    }
-  }
+// ===== UTILS =====
+function switchTab(t) {
+  currentTab = t;
+  document.getElementById('tab-stock-btn').className = t === 'stock' ? 'tab-btn active' : 'tab-btn';
+  document.getElementById('tab-orders-btn').className = t === 'orders' ? 'tab-btn active' : 'tab-btn';
+  document.getElementById('search').value = '';
+  updateDisplay();
 }
 
 function openModal(id = '', type = 'IN') {
@@ -445,7 +545,10 @@ function setType(t) {
   currentType = t;
   document.getElementById('btn-type-in').className = t === 'IN' ? 'tab-btn active' : 'tab-btn';
   document.getElementById('btn-type-out').className = t === 'OUT' ? 'tab-btn active' : 'tab-btn';
-  document.getElementById('btn-submit').textContent = t === 'IN' ? 'ยืนยันรับเข้า' : 'ยืนยันเบิกออก';
+  
+  const btn = document.getElementById('btn-submit');
+  btn.className = 'btn-submit ' + (t === 'IN' ? 'in' : 'out');
+  btn.textContent = t === 'IN' ? 'ยืนยันรับเข้า' : 'ยืนยันเบิกออก';
 }
 
 function updateHint() {
@@ -472,5 +575,6 @@ function showNotif(m, c = 'var(--green)') {
 
 function quickTx(id, type) { openModal(id, type); }
 
-document.addEventListener('click', () => { if(!document.getElementById('login-screen').classList.contains('hidden')) document.getElementById('login-input').focus(); });
 </script>
+</body>
+</html>

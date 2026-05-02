@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Water Level Dashboard</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      text-align: center;
+      color: white;
+    }
+
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .level {
+      font-size: 60px;
+      font-weight: bold;
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body id="body">
+
+<div class="container">
+  <div class="level" id="level">Loading...</div>
+  <div class="status" id="time">--</div>
+</div>
+
+<script>
+  // 🔧 ใส่ Firebase Config ของคุณ
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    databaseURL: "YOUR_DATABASE_URL"
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const levelText = document.getElementById("level");
+  const timeText = document.getElementById("time");
+  const body = document.getElementById("body");
+
+  function getColor(level) {
+    if (level === "HIGH") return "red";
+    if (level === "MEDIUM") return "orange";
+    if (level === "LOW") return "blue";
+    return "gray";
+  }
+
+  db.ref("water/level").on("value", (snapshot) => {
+    const level = snapshot.val();
+
+    levelText.innerText = level;
+    body.style.backgroundColor = getColor(level);
+
+    timeText.innerText = "Last update: " + new Date().toLocaleString();
+  });
+</script>
+
+</body>
+</html>

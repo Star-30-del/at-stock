@@ -1,81 +1,767 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>Water Dashboard</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      text-align: center;
-      color: white;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0A0F1E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WaterMon">
+<meta name="description" content="มอนิเตอร์ระดับน้ำ ESP32 แบบ Real-time">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Water Monitor</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+:root{
+  --bg0:#0A0F1E;--bg1:#111827;--bg2:#1C2537;--bg3:#243044;
+  --accent:#00BFFF;--accent2:#0099BB;
+  --ok:#34C759;--warn:#FF9500;--danger:#FF3B30;--morning:#FFD60A;
+  --text1:#E8EDF8;--text2:#8B9AB5;--text3:#4A5568;
+  --border:#1E2D45;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text1);font-family:'IBM Plex Sans Thai',sans-serif}
+mono{font-family:'IBM Plex Mono',monospace}
 
-    .container {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+/* ===== LAYOUT ===== */
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top)}
+.screen{display:none;flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:calc(68px + var(--safe-bot))}
+.screen.active{display:block}
 
-    .level {
-      font-size: 60px;
-      font-weight: bold;
-    }
+/* ===== TOP BAR ===== */
+.topbar{padding:16px 20px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg0);z-index:10;border-bottom:1px solid transparent}
+.topbar h1{font-size:21px;font-weight:600;letter-spacing:-0.3px;color:var(--text1)}
+.topbar .sub{font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+.online-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:background .4s,box-shadow .4s}
+.online-dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.online-dot.off{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.online-dot.on{animation:pulse 2.2s ease-in-out infinite}
 
-    .status {
-      margin-top: 20px;
-      font-size: 20px;
-    }
-  </style>
+/* ===== WIFI BAR ===== */
+.wifibar{background:var(--bg1);padding:9px 20px;display:flex;align-items:center;gap:8px}
+.wifi-bars{display:flex;gap:2px;align-items:flex-end;height:14px}
+.wifi-bar{width:3px;border-radius:1px;transition:background .4s}
+.chip{background:var(--bg3);border:1px solid var(--border);border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);padding:3px 10px;white-space:nowrap}
+
+/* ===== TANK ===== */
+.tank-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 20px 4px}
+canvas#tank{display:block}
+.tank-pct{font-size:40px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--accent);margin-top:14px;transition:color .4s}
+.tank-sublabel{font-size:13px;color:var(--text2);margin-top:4px}
+
+/* ===== CARDS ===== */
+.card{background:var(--bg2);border-radius:16px;border:1px solid var(--border);padding:16px 18px;margin:0 14px 12px}
+.card-inner{border-radius:12px;overflow:hidden}
+.sec-title{font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;padding:12px 20px 6px}
+
+/* ===== SENSOR GRID ===== */
+.sensor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px}
+.sensor-card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.sensor-icon{font-size:18px}
+.sensor-label{font-size:10px;color:var(--text2);text-align:center}
+.sensor-val{font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:500;transition:color .3s}
+.s-on{color:var(--ok)}.s-off{color:var(--text3)}
+
+/* ===== STAT GRID ===== */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 12px}
+.stat-card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:14px}
+.stat-val{font-size:22px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--text1)}
+.stat-label{font-size:11px;color:var(--text2);margin-top:4px}
+
+/* ===== MORNING CARD ===== */
+.morning-card{margin:0 14px 12px;padding:14px 16px;background:linear-gradient(135deg,#0D2137,#0A1A2E);border-radius:16px;border:1px solid rgba(0,153,187,.4);display:flex;gap:12px}
+.morning-icon{font-size:26px;flex-shrink:0}
+.morning-title{font-size:13px;font-weight:500;color:var(--accent)}
+.morning-sub{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.55}
+
+/* ===== ALERTS ===== */
+.alert-item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)}
+.alert-item:last-child{border-bottom:none}
+.alert-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-msg{font-size:14px;line-height:1.4;color:var(--text1)}
+.alert-time{font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace;margin-top:3px}
+.alert-badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;margin-top:5px}
+.count-chips{display:flex;gap:8px;padding:0 14px 12px;flex-wrap:wrap}
+.count-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid transparent}
+.empty-state{display:flex;flex-direction:column;align-items:center;padding:60px 20px;gap:12px;color:var(--text2);font-size:14px}
+
+/* ===== SETTINGS ===== */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:14px;color:var(--text1)}
+.setting-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-size:13px;font-family:'IBM Plex Mono',monospace;padding:9px 12px;outline:none;transition:border .2s;margin-top:7px}
+.inp:focus{border-color:var(--accent2)}
+.inp-group{margin-bottom:12px}
+.inp-group:last-child{margin-bottom:0}
+.inp-label{font-size:13px;color:var(--text1)}
+
+/* ===== TOGGLE ===== */
+.toggle{width:44px;height:26px;border-radius:13px;flex-shrink:0;position:relative;cursor:pointer;transition:background .3s}
+.toggle.on{background:var(--accent2)}.toggle.off{background:var(--bg3)}
+.toggle::after{content:'';position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .25s}
+.toggle.on::after{left:21px}.toggle.off::after{left:3px}
+
+/* ===== BUTTONS ===== */
+.btn-primary{width:100%;background:var(--accent2);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;transition:opacity .2s}
+.btn-primary:active{opacity:.8}
+.btn-outline{width:100%;background:none;border-radius:10px;padding:13px;font-size:14px;cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;margin-top:10px;transition:opacity .2s}
+.btn-outline:active{opacity:.7}
+.btn-outline.green{border:1px solid var(--ok);color:var(--ok)}
+.btn-outline.red{border:1px solid var(--danger);color:var(--danger)}
+.btn-saving{opacity:.6;pointer-events:none}
+
+/* ===== BOTTOM NAV ===== */
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(17,24,39,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe-bot);z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 8px;border:none;background:none;cursor:pointer;gap:3px;position:relative}
+.nav-icon{font-size:22px;opacity:.45;transition:opacity .2s}
+.nav-label{font-size:10px;color:var(--text2);transition:color .2s}
+.nav-btn.active .nav-icon{opacity:1}
+.nav-btn.active .nav-label{color:var(--accent)}
+.nav-badge{position:absolute;top:6px;right:calc(50% - 18px);background:var(--danger);color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;font-family:'IBM Plex Mono',monospace;display:none}
+.nav-badge.show{display:block}
+
+/* ===== INSTALL BANNER ===== */
+#install-banner{display:none;margin:0 14px 12px;padding:13px 16px;background:var(--bg2);border-radius:14px;border:1px solid rgba(0,191,255,.25);align-items:center;gap:12px}
+#install-banner.show{display:flex}
+#install-banner p{font-size:13px;color:var(--text2);flex:1;line-height:1.4}
+#install-banner button{background:var(--accent2);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'IBM Plex Sans Thai',sans-serif}
+
+/* ===== TOAST ===== */
+#toast{position:fixed;bottom:calc(80px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg2);color:var(--text1);padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;border:1px solid var(--border);z-index:200}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== SCROLLBAR ===== */
+.screen::-webkit-scrollbar{width:0}
+
+/* ===== DIALOG ===== */
+.dialog-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:center;justify-content:center;padding:20px}
+.dialog-bg.show{display:flex}
+.dialog{background:var(--bg2);border-radius:16px;padding:24px;width:100%;max-width:340px;border:1px solid var(--border)}
+.dialog h3{font-size:16px;font-weight:600;color:var(--text1);margin-bottom:8px}
+.dialog p{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:20px}
+.dialog-btns{display:flex;gap:10px}
+.dialog-btns button{flex:1;padding:12px;border-radius:10px;font-size:14px;cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:1px solid var(--border)}
+.dialog-btns .d-cancel{background:var(--bg3);color:var(--text2)}
+.dialog-btns .d-confirm{background:var(--danger);color:#fff;border-color:var(--danger)}
+</style>
 </head>
+<body>
+<div id="app">
 
-<body id="body">
-<div class="container">
-  <div class="level" id="level">Loading...</div>
-  <div class="status" id="time">--</div>
+<!-- ========== DASHBOARD ========== -->
+<section class="screen active" id="screen-dashboard">
+  <div class="topbar">
+    <div>
+      <h1>Water Monitor</h1>
+      <div class="sub" id="last-update">กำลังเชื่อมต่อ...</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:var(--text2)" id="online-label">กำลังโหลด</span>
+      <div class="online-dot off" id="online-dot"></div>
+    </div>
+  </div>
+
+  <!-- Install Banner (Android/iOS) -->
+  <div id="install-banner">
+    <span style="font-size:22px">📲</span>
+    <p>ติดตั้งแอปบนหน้าจอหลักเพื่อใช้งานแบบออฟไลน์</p>
+    <button id="install-btn">ติดตั้ง</button>
+  </div>
+
+  <div class="wifibar">
+    <div class="wifi-bars" id="wifi-bars">
+      <div class="wifi-bar" style="height:4px" id="wb1"></div>
+      <div class="wifi-bar" style="height:7px" id="wb2"></div>
+      <div class="wifi-bar" style="height:10px" id="wb3"></div>
+      <div class="wifi-bar" style="height:14px" id="wb4"></div>
+    </div>
+    <span id="wifi-ssid" style="font-size:12px;color:var(--text2)">WaterLevel_WiFi</span>
+    <div style="margin-left:auto"><span class="chip" id="esp-ip-chip">---.---.---.---</span></div>
+  </div>
+
+  <div class="tank-wrap">
+    <canvas id="tank" width="160" height="220"></canvas>
+    <div class="tank-pct" id="tank-pct">--%</div>
+    <div class="tank-sublabel">ระดับน้ำในถัง</div>
+  </div>
+
+  <div class="sensor-grid">
+    <div class="sensor-card">
+      <div class="sensor-icon">🔵</div>
+      <div class="sensor-label">สูง (GPIO18)</div>
+      <div class="sensor-val s-off" id="s-high">– Idle</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">🟡</div>
+      <div class="sensor-label">กลาง (GPIO17)</div>
+      <div class="sensor-val s-off" id="s-med">– Idle</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">🔴</div>
+      <div class="sensor-label">ต่ำ (GPIO16)</div>
+      <div class="sensor-val s-off" id="s-low">– Idle</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val" id="stat-alerts">-</div><div class="stat-label">แจ้งเตือนวันนี้</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-uptime">-</div><div class="stat-label">ออนไลน์ต่อเนื่อง</div></div>
+  </div>
+
+  <div class="morning-card" id="morning-card">
+    <div class="morning-icon">☀️</div>
+    <div>
+      <div class="morning-title">รายงาน 08:00 น.</div>
+      <div class="morning-sub" id="morning-sub">รอข้อมูลจาก ESP32...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ALERTS ========== -->
+<section class="screen" id="screen-alerts">
+  <div class="topbar">
+    <div>
+      <h1>การแจ้งเตือน</h1>
+      <div class="sub">Telegram Log</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button onclick="loadAlerts()" style="background:none;border:none;cursor:pointer;padding:6px">
+        <span style="font-size:18px;opacity:.6">🔄</span>
+      </button>
+      <button onclick="confirmClear()" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;padding:6px 12px;cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif">ล้าง</button>
+    </div>
+  </div>
+
+  <div class="count-chips" id="count-chips"></div>
+
+  <div style="margin:0 14px;background:var(--bg2);border-radius:16px;border:1px solid var(--border);overflow:hidden">
+    <div id="alert-list"></div>
+  </div>
+</section>
+
+<!-- ========== SETTINGS ========== -->
+<section class="screen" id="screen-settings">
+  <div class="topbar">
+    <div>
+      <h1>ตั้งค่า</h1>
+      <div class="sub">Device Configuration</div>
+    </div>
+  </div>
+
+  <div class="sec-title">การเชื่อมต่อ ESP32</div>
+  <div class="card">
+    <div class="inp-group">
+      <div class="inp-label">IP Address ของ ESP32</div>
+      <input class="inp" id="inp-ip" placeholder="192.168.1.42" type="text">
+    </div>
+    <div style="font-size:11px;color:var(--text2);line-height:1.6;margin-top:4px">
+      ต้องอยู่บน WiFi เดียวกันกับมือถือ<br>
+      ดู IP จาก Serial Monitor ของ Arduino IDE
+    </div>
+  </div>
+
+  <div class="sec-title">ข้อความแจ้งเตือน Telegram</div>
+  <div class="card">
+    <div class="inp-group">
+      <div class="inp-label">ระดับสูง (75%)</div>
+      <input class="inp" id="inp-high" type="text">
+    </div>
+    <div class="inp-group">
+      <div class="inp-label">ระดับกลาง (50%)</div>
+      <input class="inp" id="inp-med" type="text">
+    </div>
+    <div class="inp-group" style="margin-bottom:0">
+      <div class="inp-label">ระดับต่ำ (&lt;25%)</div>
+      <input class="inp" id="inp-low" type="text">
+    </div>
+  </div>
+
+  <div class="sec-title">ฟีเจอร์</div>
+  <div class="card">
+    <div class="setting-row">
+      <div><div class="setting-label">รายงานเช้า 08:00 น.</div><div class="setting-sub">ส่งสถานะระบบทุกเช้า</div></div>
+      <div class="toggle on" id="tog-morning" onclick="toggleSetting('morning')"></div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">แจ้งเตือน WiFi ขาดหาย</div><div class="setting-sub">แจ้งเมื่อ ESP32 ออฟไลน์</div></div>
+      <div class="toggle on" id="tog-wifi" onclick="toggleSetting('wifi')"></div>
+    </div>
+    <div class="setting-row" style="border-bottom:none">
+      <div><div class="setting-label">Debounce 150ms</div><div class="setting-sub">กรองสัญญาณรบกวน</div></div>
+      <div class="toggle on" id="tog-debounce" onclick="toggleSetting('debounce')"></div>
+    </div>
+  </div>
+
+  <div class="sec-title">ข้อมูลอุปกรณ์</div>
+  <div class="card">
+    <div class="setting-row"><div class="setting-label">รุ่น</div><span class="chip">ESP32-WROOM-32</span></div>
+    <div class="setting-row"><div class="setting-label">GPIO High/Med/Low</div><span class="chip">18 / 17 / 16</span></div>
+    <div class="setting-row"><div class="setting-label">LED WiFi</div><span class="chip">Pin 23</span></div>
+    <div class="setting-row"><div class="setting-label">ปุ่มรีเซ็ต</div><span class="chip">Pin 13</span></div>
+    <div class="setting-row" style="border-bottom:none"><div class="setting-label">NTP Server</div><span class="chip" style="font-size:10px">pool.ntp.org GMT+7</span></div>
+  </div>
+
+  <div style="padding:0 14px 8px">
+    <button class="btn-primary" id="save-btn" onclick="saveSettings()">บันทึกการตั้งค่า</button>
+    <button class="btn-outline green" onclick="sendTest()">ส่ง Telegram ทดสอบ</button>
+    <button class="btn-outline red" onclick="showResetDialog()">รีเซ็ต WiFi ESP32</button>
+  </div>
+</section>
+
+<!-- ========== BOTTOM NAV ========== -->
+<nav>
+  <button class="nav-btn active" id="nav-dashboard" onclick="goTo('dashboard')">
+    <span class="nav-icon">💧</span>
+    <span class="nav-label">แดชบอร์ด</span>
+  </button>
+  <button class="nav-btn" id="nav-alerts" onclick="goTo('alerts')">
+    <span class="nav-icon">🔔</span>
+    <span class="nav-badge" id="alert-badge">0</span>
+    <span class="nav-label">แจ้งเตือน</span>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="goTo('settings')">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">ตั้งค่า</span>
+  </button>
+</nav>
+
+<!-- ========== DIALOG ========== -->
+<div class="dialog-bg" id="reset-dialog">
+  <div class="dialog">
+    <h3>รีเซ็ต WiFi ESP32</h3>
+    <p>ESP32 จะลบ WiFi ที่บันทึกไว้และรีสตาร์ท จากนั้นต้องตั้งค่า WiFi ใหม่ผ่าน Hotspot ชื่อ <strong style="color:var(--accent)">WaterLevel_Setup</strong></p>
+    <div class="dialog-btns">
+      <button class="d-cancel" onclick="closeDialog()">ยกเลิก</button>
+      <button class="d-confirm" onclick="doReset()">รีเซ็ต</button>
+    </div>
+  </div>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<div id="toast"></div>
 
-  // 🔧 ใส่ของคุณตรงนี้
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    databaseURL: "YOUR_DATABASE_URL"
-  };
+<script>
+// ===== STATE =====
+const state = {
+  ip:         localStorage.getItem('esp_ip')      || '192.168.1.42',
+  msgHigh:    localStorage.getItem('msg_high')    || 'แจ้งเตือน: ระดับน้ำในถัง 75%',
+  msgMedium:  localStorage.getItem('msg_medium')  || 'แจ้งเตือน: ระดับน้ำในถัง 50%',
+  msgLow:     localStorage.getItem('msg_low')     || 'แจ้งเตือน: ระดับน้ำในถังต่ำกว่า 25%',
+  morning:    localStorage.getItem('tog_morning') !== 'false',
+  wifi:       localStorage.getItem('tog_wifi')    !== 'false',
+  debounce:   localStorage.getItem('tog_debounce')!== 'false',
+  connected:  false,
+  level:      0,
+  alerts:     [],
+  todayAlerts:0,
+  uptime:     0,
+};
+let pollTimer = null;
+let animLevel = 0;
+let waveOffset= 0;
+let rafId     = null;
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+// ===== NAVIGATION =====
+function goTo(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'alerts') loadAlerts();
+  if (tab === 'settings') populateSettings();
+}
 
-  const levelText = document.getElementById("level");
-  const timeText = document.getElementById("time");
-  const body = document.getElementById("body");
+// ===== TANK CANVAS =====
+const canvas = document.getElementById('tank');
+const ctx    = canvas.getContext('2d');
 
-  function getColor(level) {
-    if (level === "HIGH") return "red";
-    if (level === "MEDIUM") return "orange";
-    if (level === "LOW") return "blue";
-    return "gray";
+function drawTank() {
+  const W = 160, H = 220, R = 16;
+  ctx.clearRect(0, 0, W, H);
+
+  // เคลื่อน animLevel → target
+  const diff = state.level - animLevel;
+  animLevel  += diff * 0.04;
+  waveOffset += 0.04;
+
+  const fillFrac = Math.max(0, Math.min(1, animLevel / 100));
+
+  // ===== รูปทรงถัง =====
+  function tankPath() {
+    ctx.beginPath();
+    ctx.moveTo(R, 0); ctx.lineTo(W - R, 0);
+    ctx.quadraticCurveTo(W, 0, W, R);
+    ctx.lineTo(W, H - R);
+    ctx.quadraticCurveTo(W, H, W - R, H);
+    ctx.lineTo(R, H);
+    ctx.quadraticCurveTo(0, H, 0, H - R);
+    ctx.lineTo(0, R);
+    ctx.quadraticCurveTo(0, 0, R, 0);
+    ctx.closePath();
   }
 
-  const levelRef = ref(db, "water/level");
+  // พื้นหลังถัง
+  tankPath();
+  ctx.fillStyle = '#111827';
+  ctx.fill();
 
-  onValue(levelRef, (snapshot) => {
-    const level = snapshot.val();
-
-    console.log("DATA:", level);
-
-    if (level) {
-      levelText.innerText = level;
-      body.style.backgroundColor = getColor(level);
-      timeText.innerText = "Last update: " + new Date().toLocaleString();
-    } else {
-      levelText.innerText = "No Data";
-    }
+  // เส้นระดับอ้างอิง
+  [[0.75,'#00BFFF33'],[0.50,'#FF950033'],[0.25,'#FF3B3033']].forEach(([pct, clr]) => {
+    const y = H * (1 - pct);
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = clr;
+    ctx.lineWidth   = 1;
+    ctx.beginPath(); ctx.moveTo(8, y); ctx.lineTo(W - 8, y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,255,255,.3)';
+    ctx.font      = '9px IBM Plex Mono,monospace';
+    ctx.fillText(`${Math.round(pct * 100)}%`, W - 28, y - 3);
   });
-</script>
 
+  if (fillFrac > 0) {
+    const waterTop = H * (1 - fillFrac);
+    const clr = animLevel >= 60 ? '#00BFFF' : animLevel >= 35 ? '#FF9500' : '#FF3B30';
+
+    ctx.save();
+    tankPath(); ctx.clip();
+
+    // น้ำหลัก
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    ctx.lineTo(0, waterTop + 8);
+    for (let x = 0; x <= W; x++) {
+      const y = waterTop + 8 + Math.sin(waveOffset + x / W * Math.PI * 2) * 4.5;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H); ctx.closePath();
+    ctx.fillStyle = clr + 'D9';
+    ctx.fill();
+
+    // คลื่นชั้นสอง
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    ctx.lineTo(0, waterTop + 14);
+    for (let x = 0; x <= W; x++) {
+      const y = waterTop + 14 + Math.sin(waveOffset * 1.4 + x / W * Math.PI * 2 + 1) * 3.5;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H); ctx.closePath();
+    ctx.fillStyle = clr + '55';
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // ขอบถัง
+  tankPath();
+  ctx.strokeStyle = state.connected ? '#00BFFF66' : '#4A556866';
+  ctx.lineWidth   = 2.5;
+  ctx.stroke();
+
+  rafId = requestAnimationFrame(drawTank);
+}
+drawTank();
+
+// ===== FETCH ESP32 =====
+async function fetchStatus() {
+  try {
+    const res  = await fetch(`http://${state.ip}/status`, { signal: AbortSignal.timeout(4000) });
+    const data = await res.json();
+
+    state.level     = data.water_level ?? (data.sensor_high ? 75 : data.sensor_medium ? 50 : data.sensor_low ? 25 : 10);
+    state.connected = true;
+    state.uptime    = data.uptime ?? 0;
+
+    // อัปเดต UI
+    const dot = document.getElementById('online-dot');
+    dot.className = 'online-dot on';
+    document.getElementById('online-label').textContent = 'ออนไลน์';
+    document.getElementById('online-label').style.color = 'var(--ok)';
+
+    const now = new Date();
+    document.getElementById('last-update').textContent =
+      `อัปเดต: ${now.toLocaleTimeString('th-TH')}`;
+
+    document.getElementById('tank-pct').textContent = Math.round(state.level) + '%';
+    document.getElementById('tank-pct').style.color =
+      state.level >= 60 ? 'var(--accent)' : state.level >= 35 ? 'var(--warn)' : 'var(--danger)';
+
+    // เซ็นเซอร์
+    setSensor('s-high', data.sensor_high);
+    setSensor('s-med',  data.sensor_medium);
+    setSensor('s-low',  data.sensor_low);
+
+    // Uptime
+    const h = Math.floor(state.uptime / 3600);
+    const m = Math.floor((state.uptime % 3600) / 60);
+    document.getElementById('stat-uptime').textContent = `${h}ชม.${m}น.`;
+
+    // IP
+    document.getElementById('esp-ip-chip').textContent = data.ip || state.ip;
+
+    // WiFi bars สี
+    ['wb1','wb2','wb3','wb4'].forEach(id => {
+      document.getElementById(id).style.background = 'var(--ok)';
+    });
+
+    // Morning card
+    document.getElementById('morning-sub').textContent =
+      `ระบบทำงานปกติ • ระดับน้ำ ${Math.round(state.level)}%`;
+
+  } catch {
+    state.connected = false;
+    document.getElementById('online-dot').className = 'online-dot off';
+    document.getElementById('online-label').textContent = 'ออฟไลน์';
+    document.getElementById('online-label').style.color = 'var(--danger)';
+    document.getElementById('last-update').textContent = `ไม่พบ ESP32 • ${state.ip}`;
+    ['wb1','wb2','wb3','wb4'].forEach(id => {
+      document.getElementById(id).style.background = 'var(--text3)';
+    });
+  }
+}
+
+function setSensor(id, active) {
+  const el = document.getElementById(id);
+  el.textContent = active ? '✓ Active' : '– Idle';
+  el.className   = 'sensor-val ' + (active ? 's-on' : 's-off');
+}
+
+// ===== ALERTS =====
+const TYPE_META = {
+  high:    { color:'#00BFFF', label:'ระดับสูง' },
+  medium:  { color:'#FF9500', label:'ระดับกลาง' },
+  low:     { color:'#FF3B30', label:'ระดับต่ำ' },
+  wifi:    { color:'#34C759', label:'WiFi' },
+  morning: { color:'#FFD60A', label:'รายงานเช้า' },
+  system:  { color:'#34C759', label:'ระบบ' },
+};
+
+// ข้อมูลตัวอย่างถ้า ESP32 ยังไม่มี endpoint /alerts
+const DEMO_ALERTS = [
+  { message:'✅ WiFi กลับมาแล้ว',                         time: new Date(Date.now()-78*60000).toISOString(), type:'wifi' },
+  { message:'แจ้งเตือน: ระดับน้ำในถัง 75%',             time: new Date(Date.now()-165*60000).toISOString(), type:'high' },
+  { message:'แจ้งเตือน: ระดับน้ำในถัง 50%',             time: new Date(Date.now()-166*60000).toISOString(), type:'medium' },
+  { message:'☀️ รายงานสถานะ 08:00 น. ระบบออนไลน์ปกติ', time: new Date(Date.now()-240*60000).toISOString(), type:'morning' },
+  { message:'✅ ระบบ Online',                             time: new Date(Date.now()-360*60000).toISOString(), type:'system' },
+];
+
+async function loadAlerts() {
+  try {
+    const res  = await fetch(`http://${state.ip}/alerts`, { signal: AbortSignal.timeout(4000) });
+    state.alerts = await res.json();
+  } catch {
+    state.alerts = DEMO_ALERTS;
+  }
+  renderAlerts();
+
+  // อัปเดตจำนวนวันนี้
+  const today = new Date().toDateString();
+  state.todayAlerts = state.alerts.filter(a => new Date(a.time).toDateString() === today).length;
+  document.getElementById('stat-alerts').textContent = state.todayAlerts;
+
+  // Badge
+  const badge = document.getElementById('alert-badge');
+  if (state.alerts.length > 0) {
+    badge.textContent = state.alerts.length;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+function renderAlerts() {
+  const list = document.getElementById('alert-list');
+  if (!state.alerts.length) {
+    list.innerHTML = '<div class="empty-state"><span style="font-size:40px">🔔</span><span>ยังไม่มีการแจ้งเตือน</span></div>';
+    document.getElementById('count-chips').innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = state.alerts.map(a => {
+    const meta = TYPE_META[a.type] || TYPE_META.system;
+    const t    = new Date(a.time);
+    const ts   = t.toLocaleTimeString('th-TH', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    return `
+      <div class="alert-item">
+        <div class="alert-dot" style="background:${meta.color}"></div>
+        <div style="flex:1">
+          <div class="alert-msg">${a.message}</div>
+          <div class="alert-time">${ts}</div>
+          <span class="alert-badge" style="background:${meta.color}20;color:${meta.color}">${meta.label}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Count chips
+  const counts = {};
+  state.alerts.forEach(a => counts[a.type] = (counts[a.type]||0)+1);
+  document.getElementById('count-chips').innerHTML =
+    `<span class="count-chip" style="background:#8B9AB515;color:var(--text2);border-color:#8B9AB533">ทั้งหมด: ${state.alerts.length}</span>` +
+    Object.entries(counts).map(([t,n]) => {
+      const m = TYPE_META[t]||TYPE_META.system;
+      return `<span class="count-chip" style="background:${m.color}15;color:${m.color};border-color:${m.color}33">${m.label}: ${n}</span>`;
+    }).join('');
+}
+
+function confirmClear() {
+  state.alerts = [];
+  renderAlerts();
+  document.getElementById('alert-badge').classList.remove('show');
+  document.getElementById('stat-alerts').textContent = '0';
+  showToast('ล้างรายการแล้ว');
+}
+
+// ===== SETTINGS =====
+function populateSettings() {
+  document.getElementById('inp-ip').value   = state.ip;
+  document.getElementById('inp-high').value = state.msgHigh;
+  document.getElementById('inp-med').value  = state.msgMedium;
+  document.getElementById('inp-low').value  = state.msgLow;
+  setToggleUI('morning', state.morning);
+  setToggleUI('wifi',    state.wifi);
+  setToggleUI('debounce',state.debounce);
+}
+
+function toggleSetting(key) {
+  state[key] = !state[key];
+  setToggleUI(key, state[key]);
+}
+
+function setToggleUI(key, val) {
+  const el = document.getElementById('tog-' + key);
+  el.className = 'toggle ' + (val ? 'on' : 'off');
+}
+
+async function saveSettings() {
+  state.ip        = document.getElementById('inp-ip').value.trim();
+  state.msgHigh   = document.getElementById('inp-high').value;
+  state.msgMedium = document.getElementById('inp-med').value;
+  state.msgLow    = document.getElementById('inp-low').value;
+
+  localStorage.setItem('esp_ip',       state.ip);
+  localStorage.setItem('msg_high',     state.msgHigh);
+  localStorage.setItem('msg_medium',   state.msgMedium);
+  localStorage.setItem('msg_low',      state.msgLow);
+  localStorage.setItem('tog_morning',  state.morning);
+  localStorage.setItem('tog_wifi',     state.wifi);
+  localStorage.setItem('tog_debounce', state.debounce);
+
+  const btn = document.getElementById('save-btn');
+  btn.classList.add('btn-saving');
+  btn.textContent = 'กำลังบันทึก...';
+
+  // ส่งไป ESP32
+  try {
+    await fetch(`http://${state.ip}/settings`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        msg_high: state.msgHigh,
+        msg_medium: state.msgMedium,
+        msg_low: state.msgLow,
+        morning_report: state.morning,
+        wifi_alert: state.wifi,
+        debounce_ms: state.debounce ? 150 : 0,
+      }),
+      signal: AbortSignal.timeout(4000),
+    });
+    showToast('✓ บันทึกและส่งไป ESP32 แล้ว');
+  } catch {
+    showToast('✓ บันทึกแล้ว (ESP32 ออฟไลน์)');
+  }
+
+  document.getElementById('esp-ip-chip').textContent = state.ip;
+  btn.classList.remove('btn-saving');
+  btn.textContent = 'บันทึกการตั้งค่า';
+
+  // เริ่ม Poll ใหม่ด้วย IP ใหม่
+  startPolling();
+}
+
+async function sendTest() {
+  try {
+    const res = await fetch(`http://${state.ip}/command`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'send_test'}),
+      signal: AbortSignal.timeout(4000),
+    });
+    showToast(res.ok ? '✓ ส่ง Telegram ทดสอบแล้ว' : '✗ ส่งไม่ได้');
+  } catch {
+    showToast('✗ เชื่อมต่อ ESP32 ไม่ได้');
+  }
+}
+
+// ===== DIALOG =====
+function showResetDialog() { document.getElementById('reset-dialog').classList.add('show') }
+function closeDialog()     { document.getElementById('reset-dialog').classList.remove('show') }
+
+async function doReset() {
+  closeDialog();
+  try {
+    await fetch(`http://${state.ip}/command`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'reset_wifi'}),
+      signal: AbortSignal.timeout(4000),
+    });
+    showToast('ส่งคำสั่งรีเซ็ตแล้ว');
+  } catch {
+    showToast('✗ เชื่อมต่อ ESP32 ไม่ได้');
+  }
+}
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ===== POLLING =====
+function startPolling() {
+  clearInterval(pollTimer);
+  fetchStatus();
+  pollTimer = setInterval(fetchStatus, 2000);
+}
+
+// ===== PWA INSTALL PROMPT =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    document.getElementById('install-banner').classList.remove('show');
+    showToast('✓ ติดตั้งแอปแล้ว');
+  }
+  deferredPrompt = null;
+});
+
+// ===== SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+// ===== INIT =====
+populateSettings();
+startPolling();
+loadAlerts();
+</script>
 </body>
 </html>
